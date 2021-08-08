@@ -188,4 +188,4 @@ This example only scratches the surface of the possibilities of Python, OpenCasc
 
 ## Download source code
 
-This is a tutorial for an old version of PythonOCC. Download for [pythonOCC <= 0.6](/files/ifcopenhouse_space.py)  or [pythonOCC 0.16.0](/files/ifcopenhouse_space-pythonOCC-0.16.0.py)
+This is a tutorial for an old version of PythonOCC. Download for [pythonOCC <= 0.6](/scripts/ifcopenhouse_space.py)  or [pythonOCC 0.16.0](/scripts/ifcopenhouse_space-pythonOCC-0.16.0.py)
