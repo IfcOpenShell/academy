@@ -1117,7 +1117,7 @@ article .metadata {
 }
 
 #blog-title {
-    background: no-repeat url(http://ifcopenshell.org/static/ifcopenshell_logo.png);
+    background: no-repeat url(/assets/img/ifcopenshell_logo.png);
     height: 128px;
     display: inline-block;
     line-height: 128px;
