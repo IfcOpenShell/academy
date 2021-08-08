@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Using IfcOpenShell and pythonOCC to construct new geometry | IfcOpenShell Academy</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="https://academy2.ifcopenshell.org/posts/using-ifcopenshell-and-pythonocc-to-construct-new-geometry/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Thomas Krijnen">
+<meta property="og:site_name" content="IfcOpenShell Academy">
+<meta property="og:title" content="Using IfcOpenShell and pythonOCC to construct new geometry">
+<meta property="og:url" content="https://academy2.ifcopenshell.org/posts/using-ifcopenshell-and-pythonocc-to-construct-new-geometry/">
+<meta property="og:description" content="[This article contains several snippets of source code for illustration purposes, the full source code can be downloaded at the bottom]
+In this short exercise we are going to build on top the IfcOpenH">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2020-08-07T00:00:00+02:00">
+<meta property="article:tag" content="ifcopenshell">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="pythonocc">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Header and menu bar -->
+<div class="container">
+      <header class="blog-header py-3"><div class="row nbb-header align-items-center">
+          <div class="col-md-3 col-xs-2 col-sm-2" style="width: auto;">
+            <button class="navbar-toggler navbar-light bg-light nbb-navbar-toggler" type="button" data-toggle="collapse" data-target=".bs-nav-collapsible" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse bs-nav-collapsible bootblog4-search-form-holder">
+                
+            </div>
+        </div>
+          <div class="col-md-6 col-xs-10 col-sm-10 bootblog4-brand" style="width: auto;">
+            <a class="navbar-brand blog-header-logo text-dark" href="../../">
+
+            <span id="blog-title">IfcOpenShell Academy</span>
+        </a>
+          </div>
+            <div class="col-md-3 justify-content-end align-items-center bs-nav-collapsible collapse flex-collapse bootblog4-right-nav">
+            <nav class="navbar navbar-light bg-white"><ul class="navbar-nav bootblog4-right-nav">
+<li class="nav-item">
+    <a href="index.md" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                    
+            </ul></nav>
+</div>
+    </div>
+</header><nav class="navbar navbar-expand-md navbar-light bg-white static-top"><div class="collapse navbar-collapse bs-nav-collapsible" id="bs-navbar">
+            <ul class="navbar-nav nav-fill d-flex w-100">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+
+                
+            </li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</nav>
+</div>
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Using IfcOpenShell and pythonOCC to construct new geometry</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    Thomas Krijnen
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2020-08-07T00:00:00+02:00" itemprop="datePublished" title="2020-08-07 00:00">2020-08-07 00:00</time></a>
+            </p>
+                <p class="commentline">
+        
+        <a href="#utterances-thread">Comments</a>
+
+
+            
+        </p>
+<p class="sourceline"><a href="index.md" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>[This article contains several snippets of source code for illustration purposes, the full source code can be downloaded at the bottom]</p>
+<p>In this short exercise we are going to build on top the <a href="http://blog.ifcopenshell.org/2012/11/say-hi-to-ifcopenhouse.html">IfcOpenHouse</a> model. It is one of the first IFC models entirely built using program code. It is a nice model, but it has a few shortcomings: for example, it does not define an IfcSpace instance that describes the interior space bounded by the walls and roof. In this exercise we are going to model the geometry of this space automatically from the geometry of the bounding elements and calculate the interior volume of the model.</p>
+<p><img alt="The IfcOpenHouse model as imported into a regular CAD application" src="../../images/01-1024x576.png" title="The IfcOpenHouse model as imported into a regular CAD application"></p>
+<p><em>The IfcOpenHouse model as imported into a regular CAD application</em></p>
+<h3>Getting started</h3>
+<pre class="code literal-block"><span class="c1"># Specify to return pythonOCC shapes from ifcopenshell.geom.create_shape()</span>
+<span class="n">settings</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span>
+<span class="n">settings</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">USE_PYTHON_OPENCASCADE</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Initialize a graphical display window</span>
+<span class="n">occ_display</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">initialize_display</span><span class="p">()</span>
+
+<span class="c1"># Open the IFC file using IfcOpenShell</span>
+<span class="n">ifc_file</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"IfcOpenHouse.ifc"</span><span class="p">)</span>
+<span class="c1"># Display the geometrical contents of the file using Python OpenCascade</span>
+<span class="n">products</span> <span class="o">=</span> <span class="n">ifc_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcProduct"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">product</span> <span class="ow">in</span> <span class="n">products</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">is_a</span><span class="p">(</span><span class="s2">"IfcOpeningElement"</span><span class="p">):</span> <span class="k">continue</span>
+    <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">Representation</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">create_shape</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">product</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
+        <span class="n">display_shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">product</span><span class="o">.</span><span class="n">is_a</span><span class="p">(</span><span class="s2">"IfcPlate"</span><span class="p">):</span>
+            <span class="c1"># Plates are the transparent parts of the window assembly</span>
+            <span class="c1"># in the IfcOpenHouse model</span>
+            <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_shape_transparency</span><span class="p">(</span><span class="n">display_shape</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+</pre>
+<p>Importing an IFC model is pretty straightforward. References are obtained to instances of IfcProduct subtypes. These classes include all building elements that have a 3d representation. This also includes IfcOpeningElements, the mechanism used to extract openings for windows and doors, typically from walls. The geometry of these elements is not imported (note that continue means continue to next element in the iteration). IfcOpenShell can be used to create a 3d shape for the representation of the building element. Note that in IFC geometry is decomposed of IfcRepresentationItems of varying complexity. IfcOpenShell hides this complexity and provides a uniform Boundary Representation (BRep) for every product.</p>
+<p><img alt="The IfcOpenHouse model as imported in the pythonOCC environment" src="../../images/11.png"></p>
+<p><em>The IfcOpenHouse model as imported in the pythonOCC environment</em></p>
+<h3>Filtering elements</h3>
+<p>However, for this exercise we are not interested in all types of products. Initially we are only interested in the four walls of the building.</p>
+<pre class="code literal-block"><span class="c1"># Get a list of all walls in the file</span>
+<span class="n">walls</span> <span class="o">=</span> <span class="n">ifc_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcWall"</span><span class="p">)</span>
+
+<span class="c1"># Create a list of wall representation shapes</span>
+<span class="c1"># and compute the bounding box of these shapes</span>
+<span class="n">wall_shapes</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">bbox</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Bnd</span><span class="o">.</span><span class="n">Bnd_Box</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">wall</span> <span class="ow">in</span> <span class="n">walls</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">create_shape</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">wall</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
+    
+    <span class="n">wall_shapes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">wall</span><span class="p">,</span> <span class="n">shape</span><span class="p">))</span>
+    <span class="n">OCC</span><span class="o">.</span><span class="n">BRepBndLib</span><span class="o">.</span><span class="n">BRepBndLib_Add</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">bbox</span><span class="p">)</span>    
+    
+    <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    
+<span class="c1"># Calculate the center/average of the bounding box</span>
+<span class="n">bounding_box_center</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_bounding_box_center</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+<span class="nb">print</span> <span class="s2">"Bounding box center: </span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%.2f</span><span class="s2"> </span><span class="si">%.2f</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span>
+    <span class="n">bounding_box_center</span><span class="o">.</span><span class="n">X</span><span class="p">(),</span> 
+    <span class="n">bounding_box_center</span><span class="o">.</span><span class="n">Y</span><span class="p">(),</span>
+    <span class="n">bounding_box_center</span><span class="o">.</span><span class="n">Z</span><span class="p">())</span>
+
+<span class="n">occ_display</span><span class="o">.</span><span class="n">DisplayMessage</span><span class="p">(</span><span class="n">bounding_box_center</span><span class="p">,</span> <span class="s2">"Center"</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre>
+<p><img alt="The walls of the IfcOpenHouse model and it's bounding box center point" src="../../images/21.png"></p>
+<p><em>The walls of the IfcOpenHouse model and it's bounding box center point</em></p>
+<p>In addition to simply obtaining 3d shapes for the walls, the middle point of the interior space is determined by calculating the average of the geometrical bounding box. This middle point is necessary later on to determine which sides of the walls to base the internal space volume on.</p>
+<p><img alt="The distinction between topology and geometry. In which a Face is a composed of a Wire on a base surface. The Wire consists of Edges and Vertices. The Edges have an underlying curve" src="../../images/topo1.png"></p>
+<p><em>The distinction between topology and geometry. In which a Face is a composed of a Wire on a base surface. The Wire consists of Edges and Vertices. The Edges have an underlying curve</em></p>
+<p>In open cascade and most other geometry kernels there is a distinction between geometry and topology, for more information about these concepts read the following <a href="http://opencascade.blogspot.nl/2009/02/topology-and-geometry-in-open-cascade.html">blog post</a>.</p>
+<p><img alt="The inner faces of the bounding walls" src="../../images/31.png"></p>
+<p><em>The inner faces of the bounding walls</em></p>
+<h3>Extracting faces</h3>
+<pre class="code literal-block"><span class="c1"># Now create halfspace solids from the inner faces of the wall</span>
+<span class="n">halfspaces</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">wall</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">wall_shapes</span><span class="p">:</span>
+    <span class="n">topo</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Utils</span><span class="o">.</span><span class="n">Topo</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">topo</span><span class="o">.</span><span class="n">faces</span><span class="p">():</span>
+        <span class="n">surf</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRep</span><span class="o">.</span><span class="n">BRep_Tool</span><span class="o">.</span><span class="n">Surface</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">surf</span><span class="o">.</span><span class="n">GetObject</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">obj</span><span class="o">.</span><span class="n">DynamicType</span><span class="p">()</span><span class="o">.</span><span class="n">GetObject</span><span class="p">()</span><span class="o">.</span><span class="n">Name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Geom_Plane"</span>
+        
+        <span class="n">plane</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Geom</span><span class="o">.</span><span class="n">Handle_Geom_Plane</span><span class="o">.</span><span class="n">DownCast</span><span class="p">(</span><span class="n">surf</span><span class="p">)</span><span class="o">.</span><span class="n">GetObject</span><span class="p">()</span>
+        
+        <span class="k">if</span> <span class="n">plane</span><span class="o">.</span><span class="n">Axis</span><span class="p">()</span><span class="o">.</span><span class="n">Direction</span><span class="p">()</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">face_bbox</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Bnd</span><span class="o">.</span><span class="n">Bnd_Box</span><span class="p">()</span>
+            <span class="n">OCC</span><span class="o">.</span><span class="n">BRepBndLib</span><span class="o">.</span><span class="n">BRepBndLib_Add</span><span class="p">(</span><span class="n">face</span><span class="p">,</span> <span class="n">face_bbox</span><span class="p">)</span>
+            <span class="n">face_center</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_bounding_box_center</span><span class="p">(</span><span class="n">face_bbox</span><span class="p">)</span><span class="o">.</span><span class="n">XYZ</span><span class="p">()</span>
+            
+            <span class="n">face_normal</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">Axis</span><span class="p">()</span><span class="o">.</span><span class="n">Direction</span><span class="p">()</span><span class="o">.</span><span class="n">XYZ</span><span class="p">()</span>
+            <span class="n">face_towards_center</span> <span class="o">=</span> <span class="n">bounding_box_center</span><span class="o">.</span><span class="n">XYZ</span><span class="p">()</span> <span class="o">-</span> <span class="n">face_center</span>
+            <span class="n">face_towards_center</span><span class="o">.</span><span class="n">Normalize</span><span class="p">()</span>
+            
+            <span class="n">dot</span> <span class="o">=</span> <span class="n">face_towards_center</span><span class="o">.</span><span class="n">Dot</span><span class="p">(</span><span class="n">face_normal</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">dot</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">:</span>
+                
+                <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_shape</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+                
+                <span class="n">face_plane</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">Pln</span><span class="p">()</span>
+                <span class="n">new_face</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepBuilderAPI</span><span class="o">.</span><span class="n">BRepBuilderAPI_MakeFace</span><span class="p">(</span><span class="n">face_plane</span><span class="p">)</span><span class="o">.</span><span class="n">Face</span><span class="p">()</span>
+                <span class="n">halfspace</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeHalfSpace</span><span class="p">(</span>
+                    <span class="n">new_face</span><span class="p">,</span> <span class="n">bounding_box_center</span><span class="p">)</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
+                <span class="n">halfspaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">halfspace</span><span class="p">)</span>
+</pre>
+<p>We need to determine which of the faces of the wall volumes points towards the middle point so that these can become part of the bounding volume of the interior space. OpenCascade has several types of shapes: Solids, Shells, Faces, Wires, Edges and Vertices and compounds of these. The shape returned by IfcOpenShell for the walls is probably a Solid, but we do not really need to now that. We can simply iterate over the faces that bound the solid. Then we can obtain a reference to the underlying surface of that face. Since the IfcOpenHouse model only consists of planar geometry we know that the surface of the face conforms to a plane. If the direction of the normal vector perpendicular to the plane points towards the middle point we know that it is one of the faces we are interested in. This is done by calculating the dot product of the two vectors, read <a href="http://en.wikipedia.org/wiki/Dot_product">more on wikipedia</a>. Note that the 0.8 constant is rather arbitrary. Technically also some of the faces of the window opening subtractions point towards the middle point of the space.</p>
+<p><img alt="A halfspace solid is an infinite solid bounded by some surface, in this case an infinite plane" src="../../images/halfspace1.png"></p>
+<p><em>A halfspace solid is an infinite solid bounded by some surface, in this case an infinite plane</em></p>
+<p>Note that faces do not necessarily need to be bounded. From the plane equations that are obtained by iterating over the faces of the bounding walls we can obtain halfspace solids. You could imagine that the intersection of all these halfspace solids forms the volume of our interior space. But first a similar trick is done to obtain the bottom faces of the roof elements.</p>
+<pre class="code literal-block"><span class="c1"># Create halfspace solids from the bottom faces of the roofs</span>
+<span class="n">roofs</span> <span class="o">=</span> <span class="n">ifc_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcRoof"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">roof</span> <span class="ow">in</span> <span class="n">roofs</span><span class="p">:</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">create_shape</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">roof</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
+    
+    <span class="n">topo</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Utils</span><span class="o">.</span><span class="n">Topo</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">face</span> <span class="ow">in</span> <span class="n">topo</span><span class="o">.</span><span class="n">faces</span><span class="p">():</span>
+        <span class="n">surf</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRep</span><span class="o">.</span><span class="n">BRep_Tool</span><span class="o">.</span><span class="n">Surface</span><span class="p">(</span><span class="n">face</span><span class="p">)</span>
+        <span class="n">plane</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Geom</span><span class="o">.</span><span class="n">Handle_Geom_Plane</span><span class="o">.</span><span class="n">DownCast</span><span class="p">(</span><span class="n">surf</span><span class="p">)</span><span class="o">.</span><span class="n">GetObject</span><span class="p">()</span>
+        
+        <span class="k">assert</span> <span class="n">obj</span><span class="o">.</span><span class="n">DynamicType</span><span class="p">()</span><span class="o">.</span><span class="n">GetObject</span><span class="p">()</span><span class="o">.</span><span class="n">Name</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"Geom_Plane"</span>
+        <span class="k">if</span> <span class="n">plane</span><span class="o">.</span><span class="n">Axis</span><span class="p">()</span><span class="o">.</span><span class="n">Direction</span><span class="p">()</span><span class="o">.</span><span class="n">Z</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.7</span><span class="p">:</span>
+            <span class="n">face_plane</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">Pln</span><span class="p">()</span>
+            <span class="n">new_face</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepBuilderAPI</span><span class="o">.</span><span class="n">BRepBuilderAPI_MakeFace</span><span class="p">(</span><span class="n">face_plane</span><span class="p">)</span><span class="o">.</span><span class="n">Face</span><span class="p">()</span>
+            <span class="n">halfspace</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeHalfSpace</span><span class="p">(</span>
+                <span class="n">new_face</span><span class="p">,</span> <span class="n">bounding_box_center</span><span class="p">)</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
+            <span class="n">halfspaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">halfspace</span><span class="p">)</span>
+</pre>
+<h3>Creating the space volume</h3>
+<p>Unfortunately creating a bounded solid from only infinite solids does not work very well in OpenCascade. Hence we start off with a bounded solid that we know will surely fit the entire volume of our space. The halfspaces created from the products in the IFC files are subtracted from this box.</p>
+<pre class="code literal-block"><span class="c1"># Create an initial box from which to cut the halfspaces</span>
+<span class="n">common_shape</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeBox</span><span class="p">(</span>
+    <span class="n">OCC</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">gp_Pnt</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="n">OCC</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">halfspace</span> <span class="ow">in</span> <span class="n">halfspaces</span><span class="p">:</span>
+    <span class="n">common_shape</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepAlgoAPI</span><span class="o">.</span><span class="n">BRepAlgoAPI_Common</span><span class="p">(</span>
+        <span class="n">common_shape</span><span class="p">,</span> <span class="n">halfspace</span><span class="p">)</span><span class="o">.</span><span class="n">Shape</span><span class="p">()</span>
+
+<span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_shape</span><span class="p">(</span><span class="n">common_shape</span><span class="p">)</span>
+
+<span class="c1"># Calculate the volume properties of the resulting space shape</span>
+<span class="n">props</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">GProp</span><span class="o">.</span><span class="n">GProp_GProps</span><span class="p">()</span>
+<span class="n">OCC</span><span class="o">.</span><span class="n">BRepGProp</span><span class="o">.</span><span class="n">BRepGProp_VolumeProperties</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
+<span class="nb">print</span> <span class="s2">"Space volume: </span><span class="si">%.3f</span><span class="s2"> cubic meter"</span> <span class="o">%</span> <span class="n">props</span><span class="o">.</span><span class="n">Mass</span><span class="p">()</span>
+</pre>
+<p><img alt="The resulting space volume as generated from the bounding walls and roof" src="../../images/41.png"></p>
+<p><em>The resulting space volume as generated from the bounding walls and roof</em></p>
+<p>This example only scratches the surface of the possibilities of Python, OpenCascade and IfcOpenShell. OpenCascade provides a wide variety of shape analysis and fixing tools and descriptive measures can be extracted, such as the space volume in this example.</p>
+<h3>Download source code</h3>
+<p>This is a tutorial for an old version of PythonOCC. Download for <a href="../../files/ifcopenhouse_space.py">pythonOCC &lt;= 0.6</a>  or <a href="../../files/ifcopenhouse_space-pythonOCC-0.16.0.py">pythonOCC 0.16.0</a></p>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
+<li><a class="tag p-category" href="../../categories/ifcopenshell/" rel="tag">ifcopenshell</a></li>
+            <li><a class="tag p-category" href="../../categories/python/" rel="tag">python</a></li>
+            <li><a class="tag p-category" href="../../categories/pythonocc/" rel="tag">pythonocc</a></li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+        
+        
+        <div data-title="Using IfcOpenShell and pythonOCC to construct new geometry" id="utterances-thread"></div>
+        <script src="https://utteranc.es/client.js" repo="IfcOpenShell/utterances" issue-term="title" label="Comments" theme="github-light" crossorigin="anonymous"></script></section></article><!--End of body content--><footer id="footer">
+            Contents © 2021         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+</div>
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
+    </script>
+</body>
+</html>
