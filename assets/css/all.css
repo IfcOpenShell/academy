@@ -1116,3 +1116,8 @@ article .metadata {
     line-height: 128px;
     padding-left: 90px;
 }
+
+body div.prompt {
+    background: white;
+    border: solid 1px #eee;
+}

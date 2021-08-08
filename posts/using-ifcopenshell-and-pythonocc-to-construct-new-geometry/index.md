@@ -17,6 +17,8 @@ In this short exercise we are going to build on top the [IfcOpenHouse](http://bl
 
 *The IfcOpenHouse model as imported into a regular CAD application*
 
+<!-- TEASER_END -->
+
 ## Getting started
 
 ```python

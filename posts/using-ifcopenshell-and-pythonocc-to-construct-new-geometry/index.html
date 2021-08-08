@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Using IfcOpenShell and pythonOCC to construct new geometry | IfcOpenShell Academy</title>
 <link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
 <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
 <meta name="theme-color" content="#5670d4">
 <meta name="generator" content="Nikola (getnikola.com)">
 <link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
 <link rel="canonical" href="https://academy2.ifcopenshell.org/posts/using-ifcopenshell-and-pythonocc-to-construct-new-geometry/">
 <!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Thomas Krijnen">
+<link rel="next" href="../ifcopenshell-optimizer-tutorial/" title="IfcOpenShell Optimizer tutorial" type="text/html">
 <meta property="og:site_name" content="IfcOpenShell Academy">
 <meta property="og:title" content="Using IfcOpenShell and pythonOCC to construct new geometry">
 <meta property="og:url" content="https://academy2.ifcopenshell.org/posts/using-ifcopenshell-and-pythonocc-to-construct-new-geometry/">
@@ -82,7 +85,7 @@ In this short exercise we are going to build on top the IfcOpenH">
 
         <div class="metadata">
             <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
-                    Thomas Krijnen
+                    <a class="u-url" href="../../authors/thomas-krijnen/">Thomas Krijnen</a>
             </span></p>
             <p class="dateline">
             <a href="." rel="bookmark">
@@ -106,8 +109,10 @@ In this short exercise we are going to build on top the IfcOpenH">
 <p>In this short exercise we are going to build on top the <a href="http://blog.ifcopenshell.org/2012/11/say-hi-to-ifcopenhouse.html">IfcOpenHouse</a> model. It is one of the first IFC models entirely built using program code. It is a nice model, but it has a few shortcomings: for example, it does not define an IfcSpace instance that describes the interior space bounded by the walls and roof. In this exercise we are going to model the geometry of this space automatically from the geometry of the bounding elements and calculate the interior volume of the model.</p>
 <p><img alt="The IfcOpenHouse model as imported into a regular CAD application" src="../../images/01-1024x576.png" title="The IfcOpenHouse model as imported into a regular CAD application"></p>
 <p><em>The IfcOpenHouse model as imported into a regular CAD application</em></p>
+<!-- TEASER_END -->
+
 <h3>Getting started</h3>
-<pre class="code literal-block"><span class="c1"># Specify to return pythonOCC shapes from ifcopenshell.geom.create_shape()</span>
+<pre class="code literal-block"><span></span><code><span class="c1"># Specify to return pythonOCC shapes from ifcopenshell.geom.create_shape()</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span>
 <span class="n">settings</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">USE_PYTHON_OPENCASCADE</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
@@ -127,13 +132,14 @@ In this short exercise we are going to build on top the IfcOpenH">
             <span class="c1"># Plates are the transparent parts of the window assembly</span>
             <span class="c1"># in the IfcOpenHouse model</span>
             <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_shape_transparency</span><span class="p">(</span><span class="n">display_shape</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
-</pre>
+</code></pre>
+
 <p>Importing an IFC model is pretty straightforward. References are obtained to instances of IfcProduct subtypes. These classes include all building elements that have a 3d representation. This also includes IfcOpeningElements, the mechanism used to extract openings for windows and doors, typically from walls. The geometry of these elements is not imported (note that continue means continue to next element in the iteration). IfcOpenShell can be used to create a 3d shape for the representation of the building element. Note that in IFC geometry is decomposed of IfcRepresentationItems of varying complexity. IfcOpenShell hides this complexity and provides a uniform Boundary Representation (BRep) for every product.</p>
 <p><img alt="The IfcOpenHouse model as imported in the pythonOCC environment" src="../../images/11.png"></p>
 <p><em>The IfcOpenHouse model as imported in the pythonOCC environment</em></p>
 <h3>Filtering elements</h3>
 <p>However, for this exercise we are not interested in all types of products. Initially we are only interested in the four walls of the building.</p>
-<pre class="code literal-block"><span class="c1"># Get a list of all walls in the file</span>
+<pre class="code literal-block"><span></span><code><span class="c1"># Get a list of all walls in the file</span>
 <span class="n">walls</span> <span class="o">=</span> <span class="n">ifc_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcWall"</span><span class="p">)</span>
 
 <span class="c1"># Create a list of wall representation shapes</span>
@@ -156,7 +162,8 @@ In this short exercise we are going to build on top the IfcOpenH">
     <span class="n">bounding_box_center</span><span class="o">.</span><span class="n">Z</span><span class="p">())</span>
 
 <span class="n">occ_display</span><span class="o">.</span><span class="n">DisplayMessage</span><span class="p">(</span><span class="n">bounding_box_center</span><span class="p">,</span> <span class="s2">"Center"</span><span class="p">,</span> <span class="n">update</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre>
+</code></pre>
+
 <p><img alt="The walls of the IfcOpenHouse model and it's bounding box center point" src="../../images/21.png"></p>
 <p><em>The walls of the IfcOpenHouse model and it's bounding box center point</em></p>
 <p>In addition to simply obtaining 3d shapes for the walls, the middle point of the interior space is determined by calculating the average of the geometrical bounding box. This middle point is necessary later on to determine which sides of the walls to base the internal space volume on.</p>
@@ -166,7 +173,7 @@ In this short exercise we are going to build on top the IfcOpenH">
 <p><img alt="The inner faces of the bounding walls" src="../../images/31.png"></p>
 <p><em>The inner faces of the bounding walls</em></p>
 <h3>Extracting faces</h3>
-<pre class="code literal-block"><span class="c1"># Now create halfspace solids from the inner faces of the wall</span>
+<pre class="code literal-block"><span></span><code><span class="c1"># Now create halfspace solids from the inner faces of the wall</span>
 <span class="n">halfspaces</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">wall</span><span class="p">,</span> <span class="n">shape</span> <span class="ow">in</span> <span class="n">wall_shapes</span><span class="p">:</span>
     <span class="n">topo</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">Utils</span><span class="o">.</span><span class="n">Topo</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
@@ -197,12 +204,13 @@ In this short exercise we are going to build on top the IfcOpenH">
                 <span class="n">halfspace</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeHalfSpace</span><span class="p">(</span>
                     <span class="n">new_face</span><span class="p">,</span> <span class="n">bounding_box_center</span><span class="p">)</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
                 <span class="n">halfspaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">halfspace</span><span class="p">)</span>
-</pre>
+</code></pre>
+
 <p>We need to determine which of the faces of the wall volumes points towards the middle point so that these can become part of the bounding volume of the interior space. OpenCascade has several types of shapes: Solids, Shells, Faces, Wires, Edges and Vertices and compounds of these. The shape returned by IfcOpenShell for the walls is probably a Solid, but we do not really need to now that. We can simply iterate over the faces that bound the solid. Then we can obtain a reference to the underlying surface of that face. Since the IfcOpenHouse model only consists of planar geometry we know that the surface of the face conforms to a plane. If the direction of the normal vector perpendicular to the plane points towards the middle point we know that it is one of the faces we are interested in. This is done by calculating the dot product of the two vectors, read <a href="http://en.wikipedia.org/wiki/Dot_product">more on wikipedia</a>. Note that the 0.8 constant is rather arbitrary. Technically also some of the faces of the window opening subtractions point towards the middle point of the space.</p>
 <p><img alt="A halfspace solid is an infinite solid bounded by some surface, in this case an infinite plane" src="../../images/halfspace1.png"></p>
 <p><em>A halfspace solid is an infinite solid bounded by some surface, in this case an infinite plane</em></p>
 <p>Note that faces do not necessarily need to be bounded. From the plane equations that are obtained by iterating over the faces of the bounding walls we can obtain halfspace solids. You could imagine that the intersection of all these halfspace solids forms the volume of our interior space. But first a similar trick is done to obtain the bottom faces of the roof elements.</p>
-<pre class="code literal-block"><span class="c1"># Create halfspace solids from the bottom faces of the roofs</span>
+<pre class="code literal-block"><span></span><code><span class="c1"># Create halfspace solids from the bottom faces of the roofs</span>
 <span class="n">roofs</span> <span class="o">=</span> <span class="n">ifc_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcRoof"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">roof</span> <span class="ow">in</span> <span class="n">roofs</span><span class="p">:</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">create_shape</span><span class="p">(</span><span class="n">settings</span><span class="p">,</span> <span class="n">roof</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span>
@@ -219,10 +227,11 @@ In this short exercise we are going to build on top the IfcOpenH">
             <span class="n">halfspace</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeHalfSpace</span><span class="p">(</span>
                 <span class="n">new_face</span><span class="p">,</span> <span class="n">bounding_box_center</span><span class="p">)</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
             <span class="n">halfspaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">halfspace</span><span class="p">)</span>
-</pre>
+</code></pre>
+
 <h3>Creating the space volume</h3>
 <p>Unfortunately creating a bounded solid from only infinite solids does not work very well in OpenCascade. Hence we start off with a bounded solid that we know will surely fit the entire volume of our space. The halfspaces created from the products in the IFC files are subtracted from this box.</p>
-<pre class="code literal-block"><span class="c1"># Create an initial box from which to cut the halfspaces</span>
+<pre class="code literal-block"><span></span><code><span class="c1"># Create an initial box from which to cut the halfspaces</span>
 <span class="n">common_shape</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">BRepPrimAPI</span><span class="o">.</span><span class="n">BRepPrimAPI_MakeBox</span><span class="p">(</span>
     <span class="n">OCC</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">gp_Pnt</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
     <span class="n">OCC</span><span class="o">.</span><span class="n">gp</span><span class="o">.</span><span class="n">gp_Pnt</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">Solid</span><span class="p">()</span>
@@ -236,7 +245,8 @@ In this short exercise we are going to build on top the IfcOpenH">
 <span class="n">props</span> <span class="o">=</span> <span class="n">OCC</span><span class="o">.</span><span class="n">GProp</span><span class="o">.</span><span class="n">GProp_GProps</span><span class="p">()</span>
 <span class="n">OCC</span><span class="o">.</span><span class="n">BRepGProp</span><span class="o">.</span><span class="n">BRepGProp_VolumeProperties</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">props</span><span class="p">)</span>
 <span class="nb">print</span> <span class="s2">"Space volume: </span><span class="si">%.3f</span><span class="s2"> cubic meter"</span> <span class="o">%</span> <span class="n">props</span><span class="o">.</span><span class="n">Mass</span><span class="p">()</span>
-</pre>
+</code></pre>
+
 <p><img alt="The resulting space volume as generated from the bounding walls and roof" src="../../images/41.png"></p>
 <p><em>The resulting space volume as generated from the bounding walls and roof</em></p>
 <p>This example only scratches the surface of the possibilities of Python, OpenCascade and IfcOpenShell. OpenCascade provides a wide variety of shape analysis and fixing tools and descriptive measures can be extracted, such as the space volume in this example.</p>
@@ -248,6 +258,11 @@ In this short exercise we are going to build on top the IfcOpenH">
 <li><a class="tag p-category" href="../../categories/ifcopenshell/" rel="tag">ifcopenshell</a></li>
             <li><a class="tag p-category" href="../../categories/python/" rel="tag">python</a></li>
             <li><a class="tag p-category" href="../../categories/pythonocc/" rel="tag">pythonocc</a></li>
+        </ul>
+<ul class="pager hidden-print">
+<li class="next">
+                <a href="../ifcopenshell-optimizer-tutorial/" rel="next" title="IfcOpenShell Optimizer tutorial">Next post</a>
+            </li>
         </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
         
         

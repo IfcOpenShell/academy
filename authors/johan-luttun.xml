@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>IfcOpenShell Academy (Posts by Johan Luttun)</title><link>https://academy2.ifcopenshell.org/</link><description></description><atom:link href="https://academy2.ifcopenshell.org/authors/johan-luttun.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2021 &lt;a href="mailto:thomas@aecgeeks.com"&gt;Thomas Krijnen&lt;/a&gt; </copyright><lastBuildDate>Sun, 08 Aug 2021 13:38:42 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>IfcOpenShell Optimizer tutorial</title><link>https://academy2.ifcopenshell.org/posts/ifcopenshell-optimizer-tutorial/</link><dc:creator>Johan Luttun</dc:creator><description>&lt;div&gt;&lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;h3 id="Purpose"&gt;Purpose&lt;a class="anchor-link" href="https://academy2.ifcopenshell.org/posts/ifcopenshell-optimizer-tutorial/#Purpose"&gt;¶&lt;/a&gt;&lt;/h3&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="cell border-box-sizing text_cell rendered"&gt;&lt;div class="prompt input_prompt"&gt;
+&lt;/div&gt;&lt;div class="inner_cell"&gt;
+&lt;div class="text_cell_render border-box-sizing rendered_html"&gt;
+&lt;p&gt;The goal of this tutorial is to reduce the size of an IFC file. Indeed, IFC files can become rather large and processing them can lead to expensive computational costs. Most of the time, this important size is due to duplicate entity instances. In this tutorial, we're going to see how to create a newly optimized file which doesn't contain those instances.&lt;/p&gt;&lt;p&gt;&lt;a href="https://academy2.ifcopenshell.org/posts/ifcopenshell-optimizer-tutorial/"&gt;Read more…&lt;/a&gt; (8 min remaining to read)&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</description><guid>https://academy2.ifcopenshell.org/posts/ifcopenshell-optimizer-tutorial/</guid><pubDate>Sun, 08 Aug 2021 13:22:27 GMT</pubDate></item></channel></rss>
