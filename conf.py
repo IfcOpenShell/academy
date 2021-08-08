@@ -1406,3 +1406,8 @@ GLOBAL_CONTEXT = {}
 GLOBAL_CONTEXT_FILLER = []
 
 GLOBAL_CONTEXT['utterances_config'] = {"issue-term": "title", "label": "Comments", "theme": "github-light", "crossorigin": "anonymous"}
+
+GITHUB_DEPLOY_BRANCH="gh-pages"
+GITHUB_SOURCE_BRANCH="main"
+GITHUB_REMOTE_NAME="origin"
+GITHUB_COMMIT_SOURCE=False
