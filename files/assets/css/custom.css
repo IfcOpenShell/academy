@@ -1,0 +1,7 @@
+#blog-title {
+    background: no-repeat url(http://ifcopenshell.org/static/ifcopenshell_logo.png);
+    height: 128px;
+    display: inline-block;
+    line-height: 128px;
+    padding-left: 90px;
+}
