@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Creating a simple wall with property set and quantity information | IfcOpenShell Academy</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="https://academy.ifcopenshell.org/posts/creating-a-simple-wall-with-property-set-and-quantity-information/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Kianwee Chen">
+<link rel="prev" href="../using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/" title="Using IfcOpenshell and pythonOCC to generate cross sections directly from an IFC file" type="text/html">
+<link rel="next" href="../using-ifcopenshell-and-c%2B%2B-to-generate-alignments-through-the-ifc-4x1-schema/" title="Using IfcOpenShell and C++ to generate Alignments through the IFC 4x1 schema" type="text/html">
+<meta property="og:site_name" content="IfcOpenShell Academy">
+<meta property="og:title" content="Creating a simple wall with property set and quantity information">
+<meta property="og:url" content="https://academy.ifcopenshell.org/posts/creating-a-simple-wall-with-property-set-and-quantity-information/">
+<meta property="og:description" content="The following recipe creates a simple wall from scratch using a templating technique to quickly populate the entity instances for the IFC project structure. Simple extrusion geometries, an IfcProperty">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2015-07-26T00:00:00+02:00">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Header and menu bar -->
+<div class="container">
+      <header class="blog-header py-3"><div class="row nbb-header align-items-center">
+          <div class="col-md-3 col-xs-2 col-sm-2" style="width: auto;">
+            <button class="navbar-toggler navbar-light bg-light nbb-navbar-toggler" type="button" data-toggle="collapse" data-target=".bs-nav-collapsible" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse bs-nav-collapsible bootblog4-search-form-holder">
+                
+            </div>
+        </div>
+          <div class="col-md-6 col-xs-10 col-sm-10 bootblog4-brand" style="width: auto;">
+            <a class="navbar-brand blog-header-logo text-dark" href="../../">
+
+            <span id="blog-title">IfcOpenShell Academy</span>
+        </a>
+          </div>
+            <div class="col-md-3 justify-content-end align-items-center bs-nav-collapsible collapse flex-collapse bootblog4-right-nav">
+            <nav class="navbar navbar-light bg-white"><ul class="navbar-nav bootblog4-right-nav">
+<li class="nav-item">
+    <a href="index.md" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                    
+            </ul></nav>
+</div>
+    </div>
+</header><nav class="navbar navbar-expand-md navbar-light bg-white static-top"><div class="collapse navbar-collapse bs-nav-collapsible" id="bs-navbar">
+            <ul class="navbar-nav nav-fill d-flex w-100">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+                </li>
+<li class="nav-item">
+<a href="http://ifcopenshell.org" class="nav-link">IfcOpenShell Home ⮫</a>
+
+                
+            </li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</nav>
+</div>
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Creating a simple wall with property set and quantity information</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    <a class="u-url" href="../../authors/kianwee-chen/">Kianwee Chen</a>
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2015-07-26T00:00:00+02:00" itemprop="datePublished" title="2015-07-26 00:00">2015-07-26 00:00</time></a>
+            </p>
+                <p class="commentline">
+        
+        <a href="#utterances-thread">Comments</a>
+
+
+            
+        </p>
+<p class="sourceline"><a href="index.md" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<p>The following recipe creates a simple wall from scratch using a templating technique to quickly populate the entity instances for the IFC project structure. Simple extrusion geometries, an IfcPropertySet and an IfcElementQuantity are added using the procedural entity instance creation functions. The script is written for a research project with Dr. Patrick Janssen in National University of Singapore. The script takes reference from the FreeCAD IFC exporter script and <a href="http://www.buildingsmart-tech.org/implementation/get-started/hello-world/example-1">HelloWall miniExample</a>.</p>
+<p><img alt="HelloWall" src="../../images/HelloWall.png"></p>
+<!-- TEASER_END -->
+
+<p>First some helper functions are defined.</p>
+<pre class="code literal-block"><span></span><code><span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+<span class="kn">import</span> <span class="nn">ifcopenshell</span>
+
+<span class="n">O</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+<span class="n">X</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">0.</span>
+<span class="n">Z</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span>
+</code></pre>
+
+<h2>Helper function definitions</h2>
+<pre class="code literal-block"><span></span><code><span class="c1"># Creates an IfcAxis2Placement3D from Location, Axis and RefDirection specified as Python tuples</span>
+<span class="k">def</span> <span class="nf">create_ifcaxis2placement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="n">O</span><span class="p">,</span> <span class="n">dir1</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">dir2</span><span class="o">=</span><span class="n">X</span><span class="p">):</span>
+    <span class="n">point</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcCartesianPoint</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+    <span class="n">dir1</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcDirection</span><span class="p">(</span><span class="n">dir1</span><span class="p">)</span>
+    <span class="n">dir2</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcDirection</span><span class="p">(</span><span class="n">dir2</span><span class="p">)</span>
+    <span class="n">axis2placement</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcAxis2Placement3D</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">dir1</span><span class="p">,</span> <span class="n">dir2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">axis2placement</span>
+
+<span class="c1"># Creates an IfcLocalPlacement from Location, Axis and RefDirection, specified as Python tuples, and relative placement</span>
+<span class="k">def</span> <span class="nf">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point</span><span class="o">=</span><span class="n">O</span><span class="p">,</span> <span class="n">dir1</span><span class="o">=</span><span class="n">Z</span><span class="p">,</span> <span class="n">dir2</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">axis2placement</span> <span class="o">=</span> <span class="n">create_ifcaxis2placement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span><span class="n">point</span><span class="p">,</span><span class="n">dir1</span><span class="p">,</span><span class="n">dir2</span><span class="p">)</span>
+    <span class="n">ifclocalplacement2</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcLocalPlacement</span><span class="p">(</span><span class="n">relative_to</span><span class="p">,</span><span class="n">axis2placement</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ifclocalplacement2</span>
+
+<span class="c1"># Creates an IfcPolyLine from a list of points, specified as Python tuples</span>
+<span class="k">def</span> <span class="nf">create_ifcpolyline</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list</span><span class="p">):</span>
+    <span class="n">ifcpts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">point_list</span><span class="p">:</span>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcCartesianPoint</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="n">ifcpts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+    <span class="n">polyline</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPolyLine</span><span class="p">(</span><span class="n">ifcpts</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">polyline</span>
+
+<span class="c1"># Creates an IfcExtrudedAreaSolid from a list of points, specified as Python tuples</span>
+<span class="k">def</span> <span class="nf">create_ifcextrudedareasolid</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list</span><span class="p">,</span> <span class="n">ifcaxis2placement</span><span class="p">,</span> <span class="n">extrude_dir</span><span class="p">,</span> <span class="n">extrusion</span><span class="p">):</span>
+    <span class="n">polyline</span> <span class="o">=</span> <span class="n">create_ifcpolyline</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list</span><span class="p">)</span>
+    <span class="n">ifcclosedprofile</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcArbitraryClosedProfileDef</span><span class="p">(</span><span class="s2">"AREA"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">polyline</span><span class="p">)</span>
+    <span class="n">ifcdir</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcDirection</span><span class="p">(</span><span class="n">extrude_dir</span><span class="p">)</span>
+    <span class="n">ifcextrudedareasolid</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcExtrudedAreaSolid</span><span class="p">(</span><span class="n">ifcclosedprofile</span><span class="p">,</span> <span class="n">ifcaxis2placement</span><span class="p">,</span> <span class="n">ifcdir</span><span class="p">,</span> <span class="n">extrusion</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ifcextrudedareasolid</span>
+
+<span class="n">create_guid</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">guid</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid1</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">)</span>
+</code></pre>
+
+<p>A template is defined and instantiated using local variable definitions. This quickly defines the entity instances required for the IFC project structure and the fields of the header structure.</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># IFC template creation</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">"hello_wall.ifc"</span>
+<span class="n">timestamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">timestring</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S"</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">))</span>
+<span class="n">creator</span> <span class="o">=</span> <span class="s2">"Kianwee Chen"</span>
+<span class="n">organization</span> <span class="o">=</span> <span class="s2">"NUS"</span>
+<span class="n">application</span><span class="p">,</span> <span class="n">application_version</span> <span class="o">=</span> <span class="s2">"IfcOpenShell"</span><span class="p">,</span> <span class="s2">"0.5"</span>
+<span class="n">project_globalid</span><span class="p">,</span> <span class="n">project_name</span> <span class="o">=</span> <span class="n">create_guid</span><span class="p">(),</span> <span class="s2">"Hello Wall"</span>
+
+<span class="c1"># A template IFC file to quickly populate entity instances for an IfcProject with its dependencies</span>
+<span class="n">template</span> <span class="o">=</span> <span class="s2">"""ISO-10303-21;</span>
+<span class="s2">HEADER;</span>
+<span class="s2">FILE_DESCRIPTION(('ViewDefinition [CoordinationView]'),'2;1');</span>
+<span class="s2">FILE_NAME('</span><span class="si">%(filename)s</span><span class="s2">','</span><span class="si">%(timestring)s</span><span class="s2">',('</span><span class="si">%(creator)s</span><span class="s2">'),('</span><span class="si">%(organization)s</span><span class="s2">'),'</span><span class="si">%(application)s</span><span class="s2">','</span><span class="si">%(application)s</span><span class="s2">','');</span>
+<span class="s2">FILE_SCHEMA(('IFC2X3'));</span>
+<span class="s2">ENDSEC;</span>
+<span class="s2">DATA;</span>
+<span class="s2">#1=IFCPERSON($,$,'</span><span class="si">%(creator)s</span><span class="s2">',$,$,$,$,$);</span>
+<span class="s2">#2=IFCORGANIZATION($,'</span><span class="si">%(organization)s</span><span class="s2">',$,$,$);</span>
+<span class="s2">#3=IFCPERSONANDORGANIZATION(#1,#2,$);</span>
+<span class="s2">#4=IFCAPPLICATION(#2,'</span><span class="si">%(application_version)s</span><span class="s2">','</span><span class="si">%(application)s</span><span class="s2">','');</span>
+<span class="s2">#5=IFCOWNERHISTORY(#3,#4,$,.ADDED.,$,#3,#4,</span><span class="si">%(timestamp)s</span><span class="s2">);</span>
+<span class="s2">#6=IFCDIRECTION((1.,0.,0.));</span>
+<span class="s2">#7=IFCDIRECTION((0.,0.,1.));</span>
+<span class="s2">#8=IFCCARTESIANPOINT((0.,0.,0.));</span>
+<span class="s2">#9=IFCAXIS2PLACEMENT3D(#8,#7,#6);</span>
+<span class="s2">#10=IFCDIRECTION((0.,1.,0.));</span>
+<span class="s2">#11=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.E-05,#9,#10);</span>
+<span class="s2">#12=IFCDIMENSIONALEXPONENTS(0,0,0,0,0,0,0);</span>
+<span class="s2">#13=IFCSIUNIT(\*,.LENGTHUNIT.,$,.METRE.);</span>
+<span class="s2">#14=IFCSIUNIT(\*,.AREAUNIT.,$,.SQUARE_METRE.);</span>
+<span class="s2">#15=IFCSIUNIT(\*,.VOLUMEUNIT.,$,.CUBIC_METRE.);</span>
+<span class="s2">#16=IFCSIUNIT(\*,.PLANEANGLEUNIT.,$,.RADIAN.);</span>
+<span class="s2">#17=IFCMEASUREWITHUNIT(IFCPLANEANGLEMEASURE(0.017453292519943295),#16);</span>
+<span class="s2">#18=IFCCONVERSIONBASEDUNIT(#12,.PLANEANGLEUNIT.,'DEGREE',#17);</span>
+<span class="s2">#19=IFCUNITASSIGNMENT((#13,#14,#15,#18));</span>
+<span class="s2">#20=IFCPROJECT('</span><span class="si">%(project_globalid)s</span><span class="s2">',#5,'</span><span class="si">%(project_name)s</span><span class="s2">',$,$,$,$,(#11),#19);</span>
+<span class="s2">ENDSEC;</span>
+<span class="s2">END-ISO-10303-21;</span>
+<span class="s2">"""</span> <span class="o">%</span> <span class="nb">locals</span><span class="p">()</span>
+
+<span class="c1"># Write the template to a temporary file </span>
+<span class="n">temp_handle</span><span class="p">,</span> <span class="n">temp_filename</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">".ifc"</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_filename</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">template</span><span class="p">)</span>
+
+<span class="c1"># Obtain references to instances defined in template</span>
+<span class="n">ifcfile</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">temp_filename</span><span class="p">)</span>
+<span class="n">owner_history</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcOwnerHistory"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcProject"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcGeometricRepresentationContext"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre>
+
+<p>Subsequently, the hierarchical structure of Site, Building and Building storey is instantiated.</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># IFC hierarchy creation</span>
+<span class="n">site_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">)</span>
+<span class="n">site</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcSite</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Site"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">site_placement</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"ELEMENT"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">building_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="n">site_placement</span><span class="p">)</span>
+<span class="n">building</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcBuilding</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s1">'Building'</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">building_placement</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"ELEMENT"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="n">storey_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="n">building_placement</span><span class="p">)</span>
+<span class="n">elevation</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">building_storey</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcBuildingStorey</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s1">'Storey'</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">storey_placement</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"ELEMENT"</span><span class="p">,</span> <span class="n">elevation</span><span class="p">)</span>
+
+<span class="n">container_storey</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelAggregates</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Building Container"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">building</span><span class="p">,</span> <span class="p">[</span><span class="n">building_storey</span><span class="p">])</span>
+<span class="n">container_site</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelAggregates</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Site Container"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="p">[</span><span class="n">building</span><span class="p">])</span>
+<span class="n">container_project</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelAggregates</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Project Container"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">project</span><span class="p">,</span> <span class="p">[</span><span class="n">site</span><span class="p">])</span>
+</code></pre>
+
+<p>The wall is created with simply extrusion geometry</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># Wall creation: Define the wall shape as a polyline axis and an extruded area solid</span>
+<span class="n">wall_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">relative_to</span><span class="o">=</span><span class="n">storey_placement</span><span class="p">)</span>
+<span class="n">polyline</span> <span class="o">=</span> <span class="n">create_ifcpolyline</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)])</span>
+<span class="n">axis_representation</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcShapeRepresentation</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="s2">"Axis"</span><span class="p">,</span> <span class="s2">"Curve2D"</span><span class="p">,</span> <span class="p">[</span><span class="n">polyline</span><span class="p">])</span>
+
+<span class="n">extrusion_placement</span> <span class="o">=</span> <span class="n">create_ifcaxis2placement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">point_list_extrusion_area</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+<span class="n">solid</span> <span class="o">=</span> <span class="n">create_ifcextrudedareasolid</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list_extrusion_area</span><span class="p">,</span> <span class="n">extrusion_placement</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="mf">3.0</span><span class="p">)</span>
+<span class="n">body_representation</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcShapeRepresentation</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="s2">"Body"</span><span class="p">,</span> <span class="s2">"SweptSolid"</span><span class="p">,</span> <span class="p">[</span><span class="n">solid</span><span class="p">])</span>
+
+<span class="n">product_shape</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcProductDefinitionShape</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">axis_representation</span><span class="p">,</span> <span class="n">body_representation</span><span class="p">])</span>
+
+<span class="n">wall</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcWallStandardCase</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Wall"</span><span class="p">,</span> <span class="s2">"An awesome wall"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wall_placement</span><span class="p">,</span> <span class="n">product_shape</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre>
+
+<pre class="code literal-block"><span></span><code><span class="n">An</span> <span class="n">IfcMaterialLayerSet</span> <span class="ow">is</span> <span class="n">created</span><span class="o">.</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">mandatory</span> <span class="n">construct</span> <span class="k">for</span> <span class="n">an</span> <span class="n">IfcWallStandardCase</span><span class="o">.</span>
+
+<span class="c1"># Define and associate the wall material</span>
+<span class="n">material</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcMaterial</span><span class="p">(</span><span class="s2">"wall material"</span><span class="p">)</span>
+<span class="n">material_layer</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcMaterialLayer</span><span class="p">(</span><span class="n">material</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">material_layer_set</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcMaterialLayerSet</span><span class="p">([</span><span class="n">material_layer</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">material_layer_set_usage</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcMaterialLayerSetUsage</span><span class="p">(</span><span class="n">material_layer_set</span><span class="p">,</span> <span class="s2">"AXIS2"</span><span class="p">,</span> <span class="s2">"POSITIVE"</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelAssociatesMaterial</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="n">RelatedObjects</span><span class="o">=</span><span class="p">[</span><span class="n">wall</span><span class="p">],</span> <span class="n">RelatingMaterial</span><span class="o">=</span><span class="n">material_layer_set_usage</span><span class="p">)</span>
+</code></pre>
+
+<p>Next, an IfcPropertySet and IfcElementQuantity are instantiated. The quantities are derived from instances describing the wall above.</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># Create and assign property set</span>
+<span class="n">property_values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPropertySingleValue</span><span class="p">(</span><span class="s2">"Reference"</span><span class="p">,</span> <span class="s2">"Reference"</span><span class="p">,</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">create_entity</span><span class="p">(</span><span class="s2">"IfcText"</span><span class="p">,</span> <span class="s2">"Describe the Reference"</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPropertySingleValue</span><span class="p">(</span><span class="s2">"IsExternal"</span><span class="p">,</span> <span class="s2">"IsExternal"</span><span class="p">,</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">create_entity</span><span class="p">(</span><span class="s2">"IfcBoolean"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPropertySingleValue</span><span class="p">(</span><span class="s2">"ThermalTransmittance"</span><span class="p">,</span> <span class="s2">"ThermalTransmittance"</span><span class="p">,</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">create_entity</span><span class="p">(</span><span class="s2">"IfcReal"</span><span class="p">,</span> <span class="mf">2.569</span><span class="p">),</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPropertySingleValue</span><span class="p">(</span><span class="s2">"IntValue"</span><span class="p">,</span> <span class="s2">"IntValue"</span><span class="p">,</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">create_entity</span><span class="p">(</span><span class="s2">"IfcInteger"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">property_set</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcPropertySet</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Pset_WallCommon"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">property_values</span><span class="p">)</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelDefinesByProperties</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">wall</span><span class="p">],</span> <span class="n">property_set</span><span class="p">)</span>
+
+<span class="c1"># Add quantity information</span>
+<span class="n">quantity_values</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcQuantityLength</span><span class="p">(</span><span class="s2">"Length"</span><span class="p">,</span> <span class="s2">"Length of the wall"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcQuantityArea</span><span class="p">(</span><span class="s2">"Area"</span><span class="p">,</span> <span class="s2">"Area of the front face"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">5.0</span> \<span class="o">*</span> <span class="n">solid</span><span class="o">.</span><span class="n">Depth</span><span class="p">),</span>
+    <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcQuantityVolume</span><span class="p">(</span><span class="s2">"Volume"</span><span class="p">,</span> <span class="s2">"Volume of the wall"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mf">5.0</span> \<span class="o">*</span> <span class="n">solid</span><span class="o">.</span><span class="n">Depth</span> \<span class="o">*</span> <span class="n">material_layer</span><span class="o">.</span><span class="n">LayerThickness</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">element_quantity</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcElementQuantity</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"BaseQuantities"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">quantity_values</span><span class="p">)</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelDefinesByProperties</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">wall</span><span class="p">],</span> <span class="n">element_quantity</span><span class="p">)</span>
+</code></pre>
+
+<p>An opening element and window are created and associated to the wall. An opening element describes the geometry to be subtracted from the wall.</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># Create and associate an opening for the window in the wall</span>
+<span class="n">opening_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">wall_placement</span><span class="p">)</span>
+<span class="n">opening_extrusion_placement</span> <span class="o">=</span> <span class="n">create_ifcaxis2placement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">point_list_opening_extrusion_area</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+<span class="n">opening_solid</span> <span class="o">=</span> <span class="n">create_ifcextrudedareasolid</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list_opening_extrusion_area</span><span class="p">,</span> <span class="n">opening_extrusion_placement</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">opening_representation</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcShapeRepresentation</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="s2">"Body"</span><span class="p">,</span> <span class="s2">"SweptSolid"</span><span class="p">,</span> <span class="p">[</span><span class="n">opening_solid</span><span class="p">])</span>
+<span class="n">opening_shape</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcProductDefinitionShape</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">opening_representation</span><span class="p">])</span>
+<span class="n">opening_element</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcOpeningElement</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Opening"</span><span class="p">,</span> <span class="s2">"An awesome opening"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opening_placement</span><span class="p">,</span> <span class="n">opening_shape</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelVoidsElement</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">wall</span><span class="p">,</span> <span class="n">opening_element</span><span class="p">)</span>
+
+<span class="c1"># Create a simplified representation for the Window</span>
+<span class="n">window_placement</span> <span class="o">=</span> <span class="n">create_ifclocalplacement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="n">opening_placement</span><span class="p">)</span>
+<span class="n">window_extrusion_placement</span> <span class="o">=</span> <span class="n">create_ifcaxis2placement</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+<span class="n">point_list_window_extrusion_area</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)]</span>
+<span class="n">window_solid</span> <span class="o">=</span> <span class="n">create_ifcextrudedareasolid</span><span class="p">(</span><span class="n">ifcfile</span><span class="p">,</span> <span class="n">point_list_window_extrusion_area</span><span class="p">,</span> <span class="n">window_extrusion_placement</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">window_representation</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcShapeRepresentation</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="s2">"Body"</span><span class="p">,</span> <span class="s2">"SweptSolid"</span><span class="p">,</span> <span class="p">[</span><span class="n">window_solid</span><span class="p">])</span>
+<span class="n">window_shape</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcProductDefinitionShape</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">window_representation</span><span class="p">])</span>
+<span class="n">window</span> <span class="o">=</span> <span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcWindow</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Window"</span><span class="p">,</span> <span class="s2">"An awesome window"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">window_placement</span><span class="p">,</span> <span class="n">window_shape</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+<span class="c1"># Relate the window to the opening element</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelFillsElement</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">opening_element</span><span class="p">,</span> <span class="n">window</span><span class="p">)</span>
+</code></pre>
+
+<p>The wall and windows are related to building hierarchy and the file is written to disk</p>
+<pre class="code literal-block"><span></span><code><span class="c1"># Relate the window and wall to the building storey</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">createIfcRelContainedInSpatialStructure</span><span class="p">(</span><span class="n">create_guid</span><span class="p">(),</span> <span class="n">owner_history</span><span class="p">,</span> <span class="s2">"Building Storey Container"</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">wall</span><span class="p">,</span> <span class="n">window</span><span class="p">],</span> <span class="n">building_storey</span><span class="p">)</span>
+
+<span class="c1"># Write the contents of the file to disk</span>
+<span class="n">ifcfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+</code></pre>
+
+<h3>Download source code</h3>
+<p>Download the full source code of this recipe <a href="../../scripts/simple_wall_example.py">here</a></p>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul class="pager hidden-print">
+<li class="previous">
+                <a href="../using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/" rel="prev" title="Using IfcOpenshell and pythonOCC to generate cross sections directly from an IFC file">Previous post</a>
+            </li>
+            <li class="next">
+                <a href="../using-ifcopenshell-and-c%2B%2B-to-generate-alignments-through-the-ifc-4x1-schema/" rel="next" title="Using IfcOpenShell and C++ to generate Alignments through the IFC 4x1 schema">Next post</a>
+            </li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+        
+        
+        <div data-title="Creating a simple wall with property set and quantity information" id="utterances-thread"></div>
+        <script src="https://utteranc.es/client.js" repo="IfcOpenShell/academy" issue-term="title" label="Comments" theme="github-light" crossorigin="anonymous"></script></section></article><!--End of body content--><footer id="footer">
+            Contents © 2021         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+</div>
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
+    </script>
+</body>
+</html>

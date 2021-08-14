@@ -1128,3 +1128,7 @@ body div.prompt {
     background: white;
     border: solid 1px #eee;
 }
+
+body div.input_prompt {
+    display: none;
+}

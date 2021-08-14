@@ -1,4 +1,4 @@
-Sitemap: https://academy2.ifcopenshell.org/sitemapindex.xml
+Sitemap: https://academy.ifcopenshell.org/sitemapindex.xml
 
 User-Agent: *
-Host: academy2.ifcopenshell.org
+Host: academy.ifcopenshell.org

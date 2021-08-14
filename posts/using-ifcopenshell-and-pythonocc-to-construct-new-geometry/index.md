@@ -1,8 +1,8 @@
 <!--
 .. title: Using IfcOpenShell and pythonOCC to construct new geometry
 .. slug: using-ifcopenshell-and-pythonocc-to-construct-new-geometry
-.. date: 2020-08-07
-.. tags: ifcopenshell, python, pythonocc
+.. date: 2015-02-26 11:58:00 UTC+02:00
+.. tags: IfcOpenShell, python, PythonOCC
 .. category: 
 .. link: 
 .. description: 

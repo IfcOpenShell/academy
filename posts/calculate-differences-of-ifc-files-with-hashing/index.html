@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculate Differences of IFC files with Hashing | IfcOpenShell Academy</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="https://academy.ifcopenshell.org/posts/calculate-differences-of-ifc-files-with-hashing/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Johan Luttun">
+<link rel="prev" href="../ifcopenshell-optimizer-tutorial/" title="IfcOpenShell Optimizer tutorial" type="text/html">
+<meta property="og:site_name" content="IfcOpenShell Academy">
+<meta property="og:title" content="Calculate Differences of IFC files with Hashing">
+<meta property="og:url" content="https://academy.ifcopenshell.org/posts/calculate-differences-of-ifc-files-with-hashing/">
+<meta property="og:description" content="Purpose¶
+
+
+
+
+
+
+The goal of this tutorial is to learn how to asses whether 2 successively exported IFC building models are different by testing whether entity instances of the latest are present in the">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2020-09-28T14:56:00+02:00">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Header and menu bar -->
+<div class="container">
+      <header class="blog-header py-3"><div class="row nbb-header align-items-center">
+          <div class="col-md-3 col-xs-2 col-sm-2" style="width: auto;">
+            <button class="navbar-toggler navbar-light bg-light nbb-navbar-toggler" type="button" data-toggle="collapse" data-target=".bs-nav-collapsible" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse bs-nav-collapsible bootblog4-search-form-holder">
+                
+            </div>
+        </div>
+          <div class="col-md-6 col-xs-10 col-sm-10 bootblog4-brand" style="width: auto;">
+            <a class="navbar-brand blog-header-logo text-dark" href="../../">
+
+            <span id="blog-title">IfcOpenShell Academy</span>
+        </a>
+          </div>
+            <div class="col-md-3 justify-content-end align-items-center bs-nav-collapsible collapse flex-collapse bootblog4-right-nav">
+            <nav class="navbar navbar-light bg-white"><ul class="navbar-nav bootblog4-right-nav">
+<li class="nav-item">
+    <a href="index.ipynb" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                    
+            </ul></nav>
+</div>
+    </div>
+</header><nav class="navbar navbar-expand-md navbar-light bg-white static-top"><div class="collapse navbar-collapse bs-nav-collapsible" id="bs-navbar">
+            <ul class="navbar-nav nav-fill d-flex w-100">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+                </li>
+<li class="nav-item">
+<a href="http://ifcopenshell.org" class="nav-link">IfcOpenShell Home ⮫</a>
+
+                
+            </li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</nav>
+</div>
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="." class="u-url">Calculate Differences of IFC files with Hashing</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    <a class="u-url" href="../../authors/johan-luttun/">Johan Luttun</a>
+            </span></p>
+            <p class="dateline">
+            <a href="." rel="bookmark">
+            <time class="published dt-published" datetime="2020-09-28T14:56:00+02:00" itemprop="datePublished" title="2020-09-28 14:56">2020-09-28 14:56</time></a>
+            </p>
+                <p class="commentline">
+        
+        <a href="#utterances-thread">Comments</a>
+
+
+            
+        </p>
+<p class="sourceline"><a href="index.ipynb" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Purpose">Purpose<a class="anchor-link" href="#Purpose">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The goal of this tutorial is to learn how to asses whether 2 successively exported IFC building models are different by testing whether entity instances of the latest are present in the original one or entity instances of the original one are present in the latest version.</p>
+<p>The data is stored using the Industry Foundation Class (IFC) format, which is the standard format to digitally represent anything related to the construction industry. This format stands as an open-standard, and enables to share building models in form of IFC files between the different actors of a construction project. We can think of IFC as the PDF for the construction industry.</p>
+<p>For example, how could you find the difference between those 2 files?<!-- TEASER_END --></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/find_diff.png" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Or even those ones, which are simpler.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/min_diff.JPG" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="But-first,-why-would-we-want-to-compare-two-IFC-files?">But first, why would we want to compare two IFC files?<a class="anchor-link" href="#But-first,-why-would-we-want-to-compare-two-IFC-files?">¶</a>
+</h5>
+<p>IFC files allow actors involved in a construction project to store an engineering model of the elements that form the building or the infrastructure modeled. In order to rely on this model, the data should be accurate or at least verifiable. Indeed, the models are not carved in stone and will know many changes throughout the building lifecycle, from the pre-design phase to the renovation or demolition phases.</p>
+<p>It is therefore essential to provide software programs that let the users know whether they are receiving a newer version from their local copy, to be able to assess quantitatively and qualitatively the differences that have been introduced.</p>
+<p>Given the complexity of a construction project in terms of the diversity of domains, the resulting number of actors, and some additional stakeholders, storing satisfying data for all in discipline related files is the daunting task IFC is trying to achieve.</p>
+<p>Indeed, IFC files can become rather large and it is advised to use clever ways to process its data. The processing in question in this tutorial is to spot the differences among entity instances between two IFC files.</p>
+<p>Before diving in, let's review quickly some of the intricacies of the IFC format.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Background-on-the-IFC-format-and-comparison-strategy">Background on the IFC format and comparison strategy<a class="anchor-link" href="#Background-on-the-IFC-format-and-comparison-strategy">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The IFC format defines a data schema divided into resources block. For each block, IFC entity types enable to model different elements. Those elements get an "Ifc" prefix and can be for example IfcWall, IfcSlab, IfcPropertySet, IfcRelDefinesByProperty, IfcRepresentation...</p>
+<p>Whithin the data schema, which is object-oriented, there is a hierarchy between entity types, involving abstract entity types. For example, the IfcBuildingElement is an abstract entity type.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For example the defiinition of the IfcBuildingElement entity type is given below (source: <a href="http://standards.buildingsmart.org/MVD/RELEASE/IFC4/ADD2_TC1/RV1_2/HTML/schema/ifcproductextension/lexical/ifcbuildingelement.htm">http://standards.buildingsmart.org/MVD/RELEASE/IFC4/ADD2_TC1/RV1_2/HTML/schema/ifcproductextension/lexical/ifcbuildingelement.htm</a>)</p>
+<p>The building element comprises all elements that are primarily part of the construction of a building, i.e., its structural and space separating system. Building elements are all physically existent and tangible things</p>
+
+<pre><code>NOTE  Definition from ISO 6707-1:
+Major functional part of a building, examples are foundation, floor, roof, wall.</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/ifc_schema.png" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The above diagram is an example of the inheritance links existing in the IFC data schema.</p>
+<p>Moreover, an IFC file uses the entity types of the IFC schema with it own hierarchy.
+It means the IFC instances implemented, like the 4 IfcWall instances of a very simple house, have relationships with other IFC instances. For example, the IfcWall instances are contained in an IfcBuildingStorey instance, itself contained in a IfcBuilding instance, itself contained in a Ifcsite instance, and itself eventually contained in an IfcProject instance. In addition, for example, the attributes of an IfcWall are often grouped in IfcPropertySet instances, which are for example related by an IfcRelDefinesByProperty instance. Relationships betweem instances are also objectified: they are also represented by IFC instances.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Download-resources-from-the-web">Download resources from the web<a class="anchor-link" href="#Download-resources-from-the-web">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's import the ifcopenshell python package and the IFC Duplex file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Download-ifcopenshell-python">Download ifcopenshell-python<a class="anchor-link" href="#Download-ifcopenshell-python">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s1">'https://s3.amazonaws.com/ifcopenshell-builds/ifcopenshell-python-36-v0.6.0-0d93633-linux64.zip'</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">'ifcopenshell.zip'</span>
+<span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[1]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>('ifcopenshell.zip', &lt;http.client.HTTPMessage at 0x1b4b63e6b48&gt;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [2]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="s1">'ifcopenshell.zip'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+    <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="s1">'ifcopenshell'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Download-an-IFC-file">Download an IFC file<a class="anchor-link" href="#Download-an-IFC-file">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [3]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">urllib.request</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s1">'http://openifcmodel.cs.auckland.ac.nz/_models/030811DuplexModel-IFC-2011-05-05.zip'</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s1">'Duplex_files.zip'</span>
+<span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlretrieve</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[3]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>('Duplex_files.zip', &lt;http.client.HTTPMessage at 0x1b4b6432f48&gt;)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">zipfile</span>
+<span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="s1">'Duplex_files.zip'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+    <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="s1">'Duplex'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Getting-started">Getting started<a class="anchor-link" href="#Getting-started">¶</a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once we've downloaded the resources, we can get started and import the main libraries we'll be using.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [6]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">random</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [7]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">ifcopenshell</span>
+<span class="kn">import</span> <span class="nn">ifcopenshell.geom</span> 
+
+<span class="kn">import</span> <span class="nn">OCC</span> 
+<span class="kn">import</span> <span class="nn">OCC.BRepTools</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can open the IFC file we've dowloaded.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [8]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">file</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">'Duplex/Duplex_A_20110505.ifc'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And get the IfcBuildingElement entitity instances in a <code>building_elements</code> variable.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [9]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">building_elements</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcBuildingElement"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's take 2 random entity instances to compare them.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [10]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">random_entity1</span> <span class="o">=</span> <span class="n">building_elements</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">random_entity2</span> <span class="o">=</span> <span class="n">building_elements</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get the information of the instances. Generally speaking, this information as it is returned gives describes an instance, regarding to its physical placement, its geometry representation, and any other attached piece of information.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [11]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">info1</span> <span class="o">=</span> <span class="n">random_entity1</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_identifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="s2">"GlobalId"</span><span class="p">,</span> <span class="s2">"OwnerHistory"</span><span class="p">})</span>
+<span class="n">info2</span> <span class="o">=</span> <span class="n">random_entity2</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_identifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="s2">"GlobalId"</span><span class="p">,</span> <span class="s2">"OwnerHistory"</span><span class="p">})</span>
+
+<span class="n">info3</span> <span class="o">=</span> <span class="n">info1</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's pretty print the information of and an entity instance.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [19]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+<span class="n">HTML</span><span class="p">(</span><span class="s2">"&lt;pre style='white-space:pre;font-size:10px;line-height:14px'&gt;</span><span class="si">{}</span><span class="s2">&lt;/pre&gt;"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">pprint</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">info1</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[19]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result"><pre style="white-space:pre;font-size:10px;line-height:14px">{'Description': None,
+ 'Name': 'Basic Wall:Interior - Partition (92mm Stud):139783',
+ 'ObjectPlacement': {'PlacementRelTo': {'PlacementRelTo': {'PlacementRelTo': {'PlacementRelTo': None,
+                                                                              'RelativePlacement': {'Axis': None,
+                                                                                                    'Location': {'Coordinates': (0.0,
+                                                                                                                                 0.0,
+                                                                                                                                 0.0),
+                                                                                                                 'type': 'IfcCartesianPoint'},
+                                                                                                    'RefDirection': None,
+                                                                                                    'type': 'IfcAxis2Placement3D'},
+                                                                              'type': 'IfcLocalPlacement'},
+                                                           'RelativePlacement': {'Axis': None,
+                                                                                 'Location': {'Coordinates': (0.0,
+                                                                                                              0.0,
+                                                                                                              0.0),
+                                                                                              'type': 'IfcCartesianPoint'},
+                                                                                 'RefDirection': None,
+                                                                                 'type': 'IfcAxis2Placement3D'},
+                                                           'type': 'IfcLocalPlacement'},
+                                        'RelativePlacement': {'Axis': None,
+                                                              'Location': {'Coordinates': (0.0,
+                                                                                           0.0,
+                                                                                           0.0),
+                                                                           'type': 'IfcCartesianPoint'},
+                                                              'RefDirection': None,
+                                                              'type': 'IfcAxis2Placement3D'},
+                                        'type': 'IfcLocalPlacement'},
+                     'RelativePlacement': {'Axis': None,
+                                           'Location': {'Coordinates': (4.769999999999999,
+                                                                        -10.30800000000003,
+                                                                        0.0),
+                                                        'type': 'IfcCartesianPoint'},
+                                           'RefDirection': None,
+                                           'type': 'IfcAxis2Placement3D'},
+                     'type': 'IfcLocalPlacement'},
+ 'ObjectType': 'Basic Wall:Interior - Partition (92mm Stud):128360',
+ 'Representation': {'Description': None,
+                    'Name': None,
+                    'Representations': ({'ContextOfItems': {'ContextIdentifier': None,
+                                                            'ContextType': 'Model',
+                                                            'CoordinateSpaceDimension': 3,
+                                                            'Precision': 1e-09,
+                                                            'TrueNorth': None,
+                                                            'WorldCoordinateSystem': {'Axis': None,
+                                                                                      'Location': {'Coordinates': (0.0,
+                                                                                                                   0.0,
+                                                                                                                   0.0),
+                                                                                                   'type': 'IfcCartesianPoint'},
+                                                                                      'RefDirection': None,
+                                                                                      'type': 'IfcAxis2Placement3D'},
+                                                            'type': 'IfcGeometricRepresentationContext'},
+                                         'Items': ({'Points': ({'Coordinates': (0.0,
+                                                                                0.0),
+                                                                'type': 'IfcCartesianPoint'},
+                                                               {'Coordinates': (1.456000000000001,
+                                                                                0.0),
+                                                                'type': 'IfcCartesianPoint'}),
+                                                    'type': 'IfcPolyline'},),
+                                         'RepresentationIdentifier': 'Axis',
+                                         'RepresentationType': 'Curve2D',
+                                         'type': 'IfcShapeRepresentation'},
+                                        {'ContextOfItems': {'ContextIdentifier': None,
+                                                            'ContextType': 'Model',
+                                                            'CoordinateSpaceDimension': 3,
+                                                            'Precision': 1e-09,
+                                                            'TrueNorth': None,
+                                                            'WorldCoordinateSystem': {'Axis': None,
+                                                                                      'Location': {'Coordinates': (0.0,
+                                                                                                                   0.0,
+                                                                                                                   0.0),
+                                                                                                   'type': 'IfcCartesianPoint'},
+                                                                                      'RefDirection': None,
+                                                                                      'type': 'IfcAxis2Placement3D'},
+                                                            'type': 'IfcGeometricRepresentationContext'},
+                                         'Items': ({'Depth': 2.795000000000196,
+                                                    'ExtrudedDirection': {'DirectionRatios': (0.0,
+                                                                                              0.0,
+                                                                                              1.0),
+                                                                          'type': 'IfcDirection'},
+                                                    'Position': {'Axis': None,
+                                                                 'Location': {'Coordinates': (0.0,
+                                                                                              0.0,
+                                                                                              0.0),
+                                                                              'type': 'IfcCartesianPoint'},
+                                                                 'RefDirection': None,
+                                                                 'type': 'IfcAxis2Placement3D'},
+                                                    'SweptArea': {'Position': {'Location': {'Coordinates': (0.7280000000000004,
+                                                                                                            -0.0),
+                                                                                            'type': 'IfcCartesianPoint'},
+                                                                               'RefDirection': {'DirectionRatios': (-1.0,
+                                                                                                                    0.0),
+                                                                                                'type': 'IfcDirection'},
+                                                                               'type': 'IfcAxis2Placement2D'},
+                                                                  'ProfileName': None,
+                                                                  'ProfileType': 'AREA',
+                                                                  'XDim': 1.456000000000001,
+                                                                  'YDim': 0.1240000000000021,
+                                                                  'type': 'IfcRectangleProfileDef'},
+                                                    'type': 'IfcExtrudedAreaSolid'},),
+                                         'RepresentationIdentifier': 'Body',
+                                         'RepresentationType': 'SweptSolid',
+                                         'type': 'IfcShapeRepresentation'}),
+                    'type': 'IfcProductDefinitionShape'},
+ 'Tag': '139783',
+ 'type': 'IfcWallStandardCase'}</pre></div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Intuitively, we can compare 2 entities using those info variables.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [59]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">info1</span> <span class="o">==</span> <span class="n">info2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">info1</span> <span class="o">==</span> <span class="n">info3</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>False
+True
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>But what if we wanted to check whether an entity belongs to a set of entities. In other words, how do we test whether an entity of a new file we've received has been added or remained the same?</p>
+<p>For this, we need to store the entities - still in the form of their information - to a set.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The cell below produces an error since a set must be made of immutable/hashable elements.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [60]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">a_set1</span> <span class="o">=</span> <span class="p">{</span><span class="n">info1</span><span class="p">,</span> <span class="n">info2</span><span class="p">,</span> <span class="n">info3</span><span class="p">}</span>
+<span class="n">a_set2</span> <span class="o">=</span> <span class="p">{</span><span class="n">info1</span><span class="p">,</span> <span class="n">info2</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a_set1</span> <span class="o">==</span> <span class="n">a_set2</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">&lt;ipython-input-60-9a4a8bf8df91&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; 1</span><span class="ansi-yellow-intense-fg ansi-bold"> </span>a_set1 <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">{</span>info1<span class="ansi-yellow-intense-fg ansi-bold">,</span> info2<span class="ansi-yellow-intense-fg ansi-bold">,</span> info3<span class="ansi-yellow-intense-fg ansi-bold">}</span>
+<span class="ansi-green-fg">      2</span> a_set2 <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">{</span>info1<span class="ansi-yellow-intense-fg ansi-bold">,</span> info2<span class="ansi-yellow-intense-fg ansi-bold">}</span>
+<span class="ansi-green-fg">      3</span> print<span class="ansi-yellow-intense-fg ansi-bold">(</span>a_set1 <span class="ansi-yellow-intense-fg ansi-bold">==</span> a_set2<span class="ansi-yellow-intense-fg ansi-bold">)</span>
+
+<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: unhashable type: 'dict'</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In order to reach our goal, which is to create a set of the information of entity instances, we will have to transform the data in which the information of an entity is stored, and which is mutable for now (a dictionary), into an immutable one (a tuple for example). For this, we will use a newly created class that instantiates and immutable data container, and for which we can tailor the tolerance for squashing floating values into a hash number.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Frozensets">Frozensets<a class="anchor-link" href="#Frozensets">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alternatively, we could also store the information on an entity as embedded frozenset, which is the immutable version of the python set.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [61]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">info1</span> <span class="o">=</span> <span class="n">random_entity1</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">include_identifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">)</span>
+<span class="n">info2</span> <span class="o">=</span> <span class="n">random_entity2</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">include_identifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We could create a mini set of those embedded frozensets to test membership of the entities.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [62]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">new_set</span> <span class="o">=</span> <span class="p">{</span><span class="n">info1</span><span class="p">,</span> <span class="n">info2</span><span class="p">}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">info2</span> <span class="ow">in</span> <span class="n">new_set</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>True
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's see some definitions about the mutable and hashable notions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Definitions">Definitions<a class="anchor-link" href="#Definitions">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Mutable">Mutable<a class="anchor-link" href="#Mutable">¶</a>
+</h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A data structure is mutable if it can be modified after its intitialization, such as a list, a set, a dictionary.
+Conversely, a tuple, an integer, a string, or a frozenset cannot be modified after initialization, so they are immutable data types.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h5 id="Hashable">Hashable<a class="anchor-link" href="#Hashable">¶</a>
+</h5>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A hashing function maps an immutable variable to an integer. This integer has to be unique and represents the input value in a more simpler form.
+We say that a variable is hashable if it can be hashed with the hash method of its underliying data type. For this, the object must be immutable.
+The input of the hashing function is unbounded and can be of any type as long as it is immutable. However, the output of the function is bounded (there is a finite number of hashes), which can lead to Hashing collision, happening when two different outputs share the same hash value. Consequently, the more the the input data, the more frequent an output hash risks to be and thus the higher the risk of Hashing collision. 
+In the example (<a href="https://en.wikipedia.org/wiki/Hash_table#/media/File:Hash_table_3_1_1_0_1_0_0_SP.svg">https://en.wikipedia.org/wiki/Hash_table#/media/File:Hash_table_3_1_1_0_1_0_0_SP.svg</a>) below, Hash collision happens for the hash value <code>02</code>, which is produced by both <code>John Smith</code> and <code>Sandra Dee</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/hash_table.png" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Comparing-2-IFC-files">Comparing 2 IFC files<a class="anchor-link" href="#Comparing-2-IFC-files">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the context of comparing 2 files, if we look at the big picture we would say that we have to assess, for each entity  instance of the new file, whether it belongs to the old file or not. To do so, the entities of the old file have to be stored in a container, such as a set.
+Thus, the key operation of this tutorial is <strong>membership testing</strong>.</p>
+<p>As said earlier, the information variable of each entity instance of the original file have to be stored in a set. But each of this informaton variable comes in the form of a dictionary. However, a set, as the keys of a dictionary, needs its elements to be immutable so that they can be hashable.</p>
+<p>To do so, we create a new data container - a fuzzy dictionary - which will have, unlike the python dictionary, a hash method. To create this immutable/hashable data structure, we transform the input values coming in the form of a dictionary to a tuple, which is an immutable data structure which allows hashing.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Methods-to-create-an-immutable-data-structure">Methods to create an immutable data structure<a class="anchor-link" href="#Methods-to-create-an-immutable-data-structure">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first method enables to get the information of an IFC file. The second one transforms this information into an immutable data structure.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [63]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">info_as_dictionary</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">e</span><span class="o">.</span><span class="n">get_info</span><span class="p">(</span><span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_identifier</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">ignore</span><span class="o">=</span><span class="p">{</span><span class="s2">"GlobalId"</span><span class="p">,</span> <span class="s2">"OwnerHistory"</span><span class="p">})</span>
+    
+<span class="k">def</span> <span class="nf">to_fuzzy</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">fuzzy_dict</span><span class="p">(</span><span class="n">info_as_dictionary</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">guid</span><span class="o">=</span><span class="n">e</span><span class="o">.</span><span class="n">GlobalId</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Make-the-dictionaries-immutable">Make the dictionaries immutable<a class="anchor-link" href="#Make-the-dictionaries-immutable">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's create the <code>fuzzy_dict</code> data container.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [64]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">fuzzy_dict</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span> <span class="n">guid</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">guid</span> <span class="o">=</span> <span class="n">guid</span>
+        
+        <span class="n">mod</span> <span class="o">=</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">eps</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)))</span>
+        <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="c1"># print "round(%r, %r) = %r" % (v, mod, round(v, mod))</span>
+                <span class="k">return</span> <span class="nb">round</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">mod</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="n">k</span><span class="p">,</span><span class="n">c</span><span class="p">(</span><span class="n">v</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)(</span><span class="nb">map</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">v</span>
+                
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">c</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">))</span>
+        
+    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
+         
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    
+        <span class="k">def</span> <span class="nf">eq</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">v2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">v1</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">fuzzy_dict</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)</span> <span class="o">==</span> <span class="n">fuzzy_dict</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">)):</span> <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v2</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">eq</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">v1</span> <span class="o">!=</span> <span class="n">v2</span><span class="p">:</span> <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">!=</span> <span class="nb">set</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span> <span class="k">return</span>
+        
+        <span class="k">for</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">other</span><span class="o">.</span><span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">eq</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
+            
+        <span class="k">return</span> <span class="kc">True</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Rounding-the-float-values">Rounding the float values<a class="anchor-link" href="#Rounding-the-float-values">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As it can be seen, the <code>eq</code> method uses a <code>mod</code> variable to define tolerance in the comparison. This <code>mod</code> is calculated on the basis of an epsilon value.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let</p>
+<ul>
+<li>$int$ be a floor or ceiling function</li>
+<li>$round$ be another floor or ceiling function</li>
+<li>$log_{100}$ be the logarithm base 10</li>
+<li>${\epsilon}$ be the tolerance to compare two floating point numbers</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The mod function can thus be expressed as</p>
+<blockquote>$$mod(\epsilon)={\mbox{- int}}\left( round( log_{10}(100 \epsilon ) \right) $$
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to round floats to a number of digital places so that we're sure that <code>f(v +- eps) == f(v)</code> .</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-class-to-store-the-differences-between-2-IFC-files">Create class to store the differences between 2 IFC files<a class="anchor-link" href="#Create-class-to-store-the-differences-between-2-IFC-files">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [65]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">info1_immut</span> <span class="o">=</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">random_entity1</span><span class="p">)</span>
+<span class="n">info2_immut</span> <span class="o">=</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">random_entity2</span><span class="p">)</span>
+<span class="n">info3_immut</span> <span class="o">=</span> <span class="n">info1_immut</span>
+
+<span class="n">a_set1_immut</span> <span class="o">=</span> <span class="p">{</span><span class="n">info1_immut</span><span class="p">,</span> <span class="n">info2_immut</span><span class="p">,</span> <span class="n">info3_immut</span><span class="p">}</span>
+<span class="n">a_set2_immut</span> <span class="o">=</span> <span class="p">{</span><span class="n">info1_immut</span><span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">a_set1_immut</span> <span class="o">==</span> <span class="p">{</span><span class="n">info1_immut</span><span class="p">,</span> <span class="n">info2_immut</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a_set1_immut</span> <span class="o">==</span> <span class="n">a_set2_immut</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>True
+False
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Create-class-to-store-the-differences-between-2-IFC-files">Create class to store the differences between 2 IFC files<a class="anchor-link" href="#Create-class-to-store-the-differences-between-2-IFC-files">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The most important processing happens in the <code>calculate_differences</code> method. In this method, we will assign each entity instance to one or several of these groups: "unchanged", "added", "deleted", via its GlobalId.</p>
+<p>First, we can loop over the instances of the new file and check whether it belongs to the old file. The "belonging" or rather membership is tested with the hash of the information of the entity instance. If it does belong to the set of the hashes of the old files instances information, then it means it has been unchanged. It it doesn't belong to the old file, it means it has been added.</p>
+<p>Similarly, we can loop through the instances of the old file and checks whether an entity instance is still there. If it doesn't, it means that it has been deleted or modified.</p>
+<p>The particularity is that an entity instance that we'll define by its GlobalId there (not its information) can be in both files. In that case, its GlobalId is saved in both the "deleted" and the "added" classes. It means that the information of the entity has been modified from the old file to the new one. So the GlobalId remains the same, but not the information, hence the membership in those 2 classes.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [66]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">class</span> <span class="nc">Difference</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">old</span><span class="p">,</span><span class="n">new</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_file</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_file_guids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">GlobalId</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcBuildingElement"</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_file_hashes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file_guids</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info_as_dictionary</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="n">immut_dict</span> <span class="o">=</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">old_file_hashes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">immut_dict</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_file</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_file_guids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">GlobalId</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcBuildingElement"</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">new_file_hashes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file_guids</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">info_as_dictionary</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="n">immut_dict</span> <span class="o">=</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">new_file_hashes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">immut_dict</span><span class="p">)</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">added_in_new</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unchanged_in_new</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deleted_from_old</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">calculate_differences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">entity_guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file_guids</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file</span><span class="p">[</span><span class="n">entity_guid</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file_hashes</span><span class="p">:</span>
+                <span class="c1">#print('unchanged')</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">unchanged_in_new</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">entity_guid</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1">#print('added')</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">added_in_new</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">entity_guid</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">entity_guid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file_guids</span><span class="p">:</span>
+            <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_file</span><span class="p">[</span><span class="n">entity_guid</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">to_fuzzy</span><span class="p">(</span><span class="n">entity</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">new_file_hashes</span><span class="p">:</span>
+                <span class="c1">#print('deleted')</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deleted_from_old</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">entity_guid</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="s1">'unchanged'</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">unchanged_in_new</span><span class="p">,</span><span class="s1">'added'</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">added_in_new</span><span class="p">,</span><span class="s1">'deleted'</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">deleted_from_old</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Test-the-Difference-class-with-2-files">Test the Difference class with 2 files<a class="anchor-link" href="#Test-the-Difference-class-with-2-files">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the following code blocks, we'll print and then display the result of the <code>calculate_differences</code> method. It enables to know if an entity instance as been added to the new file or if another one has been deleted from the old file.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [67]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">ifcopenshell</span>
+<span class="kn">import</span> <span class="nn">ifcopenshell.geom</span> 
+
+<span class="n">filename1</span> <span class="o">=</span> <span class="s2">"./diff/261110ADT-Smiley-West-Project-14-10-2005.ifc"</span>
+<span class="n">filename2</span> <span class="o">=</span> <span class="s2">"./diff/261110ADT-Smiley-West-5-Buildings-14-10-2005.ifc"</span>
+
+<span class="n">difference</span> <span class="o">=</span> <span class="n">Difference</span><span class="p">(</span><span class="n">filename1</span><span class="p">,</span><span class="n">filename2</span><span class="p">)</span>
+<span class="n">differences</span> <span class="o">=</span> <span class="n">difference</span><span class="o">.</span><span class="n">calculate_differences</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Unchanged: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">differences</span><span class="p">[</span><span class="s1">'unchanged'</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Added: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">differences</span><span class="p">[</span><span class="s1">'added'</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Deleted: "</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">differences</span><span class="p">[</span><span class="s1">'deleted'</span><span class="p">]))</span>
+
+<span class="n">present_in_both_files</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">differences</span><span class="p">[</span><span class="s1">'deleted'</span><span class="p">]</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">differences</span><span class="p">[</span><span class="s1">'added'</span><span class="p">]))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Unchanged:  354
+Added:  31
+Deleted:  27
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using the python-occ viewer, we can display the entity instances of both files and color them according to the class they belong to. This code cannot be run in the notebook but feel free to test it in a regular python execution.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In [ ]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">OCC</span> 
+<span class="kn">import</span> <span class="nn">OCC.BRepTools</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">settings</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">USE_PYTHON_OPENCASCADE</span><span class="p">,</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">initialize_display</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">set_bg_gradient_color</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+
+
+
+<span class="n">of</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">difference</span><span class="o">.</span><span class="n">old_file_guids</span><span class="p">)</span>
+<span class="n">nf</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">difference</span><span class="o">.</span><span class="n">new_file_guids</span><span class="p">)</span>
+
+<span class="n">of</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">nf</span><span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">of</span><span class="p">:</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'added'</span><span class="p">]:</span>
+        <span class="n">clr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.239</span><span class="p">,</span> <span class="mf">0.839</span><span class="p">,</span> <span class="mf">0.372</span><span class="p">)</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="n">difference</span><span class="o">.</span><span class="n">new_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'unchanged'</span><span class="p">]:</span>
+        <span class="n">clr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.105</span><span class="p">,</span><span class="mf">0.196</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="n">difference</span><span class="o">.</span><span class="n">new_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
+
+    <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'deleted'</span><span class="p">]:</span>
+        <span class="n">clr</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.980</span><span class="p">,</span> <span class="mf">0.419</span><span class="p">,</span> <span class="mf">0.474</span><span class="p">)</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="n">difference</span><span class="o">.</span><span class="n">old_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'added'</span><span class="p">]</span> <span class="ow">and</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'deleted'</span><span class="p">]:</span>
+        <span class="n">clr</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">entity</span> <span class="o">=</span> <span class="n">difference</span><span class="o">.</span><span class="n">new_file</span><span class="p">[</span><span class="n">guid</span><span class="p">]</span>
+
+
+
+    <span class="k">if</span> <span class="n">entity</span><span class="p">:</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">create_shape</span><span class="p">(</span><span class="n">s</span><span class="p">,</span><span class="n">entity</span><span class="p">)</span>
+
+        <span class="n">display</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">display_shape</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span><span class="n">clr</span><span class="o">=</span><span class="n">clr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">guid</span> <span class="ow">in</span> <span class="n">differences</span><span class="p">[</span><span class="s1">'unchanged'</span><span class="p">]:</span>
+            <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">set_shape_transparency</span><span class="p">(</span><span class="n">display</span><span class="p">,</span><span class="mf">0.9</span><span class="p">)</span>
+
+    <span class="n">viewer</span><span class="o">.</span><span class="n">FitAll</span><span class="p">()</span>
+
+
+
+<span class="n">ifcopenshell</span><span class="o">.</span><span class="n">geom</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">main_loop</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's visualize the changes made on a minimalistic example.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="data:image/png;base64,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" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's add some walls and display the additions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/added.JPG" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's now delete the one this newly added wall, and also one of the windows.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/deleted.JPG" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now, let's make some changes regarding a wall position and a door position.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/modified.JPG" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Finally, if we can see the real difference between the original file and the last version (after adding, deleting, and modifying)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="../../images/all_changes.JPG" alt="image.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Further-work">Further work<a class="anchor-link" href="#Further-work">¶</a>
+</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For future work, we'll see how to produce more detailed visualisations and go back to the history of the changes known by the biggest file of this tutorial.</p>
+
+</div>
+</div>
+</div>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul class="pager hidden-print">
+<li class="previous">
+                <a href="../ifcopenshell-optimizer-tutorial/" rel="prev" title="IfcOpenShell Optimizer tutorial">Previous post</a>
+            </li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+        
+        
+        <div data-title="Calculate Differences of IFC files with Hashing" id="utterances-thread"></div>
+        <script src="https://utteranc.es/client.js" repo="IfcOpenShell/academy" issue-term="title" label="Comments" theme="github-light" crossorigin="anonymous"></script></section><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML" integrity="sha384-3lJUsx1TJHt7BA4udB5KPnDrlkO8T6J6v/op7ui0BbCjvZ9WqV4Xm6DTP6kQ/iBH" crossorigin="anonymous"></script><script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$latex ','$'], ['\\(','\\)']]}});
+        </script></article><!--End of body content--><footer id="footer">
+            Contents © 2021         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+</div>
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
+    </script>
+</body>
+</html>
