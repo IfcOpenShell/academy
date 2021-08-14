@@ -20,10 +20,10 @@ BLOG_AUTHOR = "Thomas Krijnen"  # (translatable)
 BLOG_TITLE = "IfcOpenShell Academy"  # (translatable)
 # This is the main URL for your site. It will be used
 # in a prominent link. Don't forget the protocol (http/https)!
-SITE_URL = "https://academy2.ifcopenshell.org/"
+SITE_URL = "https://academy.ifcopenshell.org/"
 # This is the URL where Nikola's output will be deployed.
 # If not set, defaults to SITE_URL
-# BASE_URL = "https://academy2.ifcopenshell.org/"
+# BASE_URL = "https://academy.ifcopenshell.org/"
 BLOG_EMAIL = "thomas@aecgeeks.com"
 BLOG_DESCRIPTION = "Demo content and tutorials for IfcOpenShell"  # (translatable)
 
@@ -143,6 +143,7 @@ NAVIGATION_LINKS = {
         ("/archive.html", "Archive"),
         ("/categories/", "Tags"),
         ("/rss.xml", "RSS feed"),
+        ("http://ifcopenshell.org", "IfcOpenShell Home \u2BAB"),
     ),
 }
 
@@ -1020,7 +1021,7 @@ COMMENT_SYSTEM = "utterances"
 # depends on what comment system you use. The default is
 # "nikolademo" which is a test account for Disqus. More information
 # is in the manual.
-COMMENT_SYSTEM_ID = "IfcOpenShell/utterances"
+COMMENT_SYSTEM_ID = "IfcOpenShell/academy"
 
 # Create index.html for page folders?
 # WARNING: if a page would conflict with the index file (usually
