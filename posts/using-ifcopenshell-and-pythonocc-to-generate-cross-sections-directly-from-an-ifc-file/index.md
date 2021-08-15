@@ -16,6 +16,8 @@ Section information can be used for multiple purposes. This example is the first
 
 This example builds upon some of the concepts in "Using IfcOpenShell and pythonOCC to construct new geometry" and uses the same model of a simple house, called [IfcOpenHouse](http://blog.ifcopenshell.org/2012/11/say-hi-to-ifcopenhouse.html).
 
+<!-- TEASER_END -->
+
 ![Building model](/images/Solibri-Building-1024x598.png)
 
 ## Opening and viewing an IFC file
