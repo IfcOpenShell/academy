@@ -1,7 +1,7 @@
 <!--
 .. title: Importing Part module in ifcOpenShell-python
 .. slug: Importing Part module in ifcOpenShell-python
-.. date: 2021-11-10 12:20:00 UTC+05:30
+.. date: 2021-10-11 12:20:00 UTC+05:30
 .. tags: 
 .. category: 
 .. link: 
