@@ -14,7 +14,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="rss.xml">
 <link rel="canonical" href="https://academy.ifcopenshell.org/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -74,7 +74,61 @@
     
         
     <div class="postindex">
-            <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" class="u-url">Importing Part module in ifcOpenShell-python</a></h1>
+            <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/" class="u-url">Using IfcOpenshell in Binder Notebooks with web-viewer and graph visualization</a></h1>
+                <div class="metadata">
+                    <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                        <a href="authors/jakob-beetz/">Jakob Beetz </a>
+                    </span></p>
+            <p class="dateline">
+            <a href="posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/" rel="bookmark">
+            <time class="published dt-published" datetime="2021-10-17T13:45:29+02:00" itemprop="datePublished" title="2021-10-17 13:45">2021-10-17 13:45</time></a>
+            </p>
+                        <p class="commentline">
+        
+        <a href="posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/#utterances-thread">Comments</a>
+
+
+                </p>
+</div>
+            </header><div class="p-summary entry-summary">
+                    <div>
+<p>As an early release (still a little rough around the edges), <a href="https://github.com/jakob-beetz/ifcopenshell-notebooks">this repo</a> has been created to allow students to get familiar with ifcopenshell without any knowledge. Its zero-setup running Jupyter-notebooks on binder.</p>
+<p>to launch now click this: <a href="https://mybinder.org/v2/gh/jakob-beetz/ifcopenshell-binder/main?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252Fjakob-beetz%252Fifcopenshell-notebooks%26urlpath%3Dlab%252Ftree%252Fifcopenshell-notebooks%252F00_introduction.ipynb%26branch%3Dmain"><img alt="Binder" src="https://mybinder.org/badge_logo.svg"></a></p>
+<p>Some of the <strong>features</strong> are:
+<img alt="Interactive viewer" src="images/screenshot-ifc-notebook.png"></p>
+<ul>
+<li>
+<p>a viewer adapted from OCCJupyterViewer added with </p>
+</li>
+<li>
+<p>two-directional-selection viewer &lt;-&gt; model</p>
+</li>
+<li>section sliders for sections</li>
+<li>attribute value lister</li>
+<li>
+<p>set and get colors</p>
+</li>
+<li>
+<p>graph visualization of the scene graph
+<img alt="Graph viewer" src="images/ifc-graph-plot.png"></p>
+</li>
+<li>
+<p>integrated IFC documentation 
+<img alt="Doc in help" src="images/ifchelp-example-ifcdoor.png"></p>
+</li>
+</ul>
+<p>There are many more examples, quizzes and task in the German version that is part of a mandatory 4th term class for 250 architecture students at the <a href="https://dc.rwth-aachen.de/de">RWTH Aachen</a> that will be migrated over time. 
+We are very open and happy about suggestions, issues, PRs and feedback!</p>
+<p>TODOs:</p>
+<ul>
+<li>more explantory text</li>
+<li>English verion of slides with <a href="https://rise.readthedocs.io/en/stable/index.html">RISE</a> to be used in lectures</li>
+<li>move viewer to SideCar (was not possible in the RWTH-Jupyter-Cluster yet)</li>
+</ul>
+<p>I will be applying for some more funding to extend this into a good Open Educational Resource (OER) book from provincial sources in NRW/Germany, very open for collaboration ... </p>
+</div>
+                </div>
+            </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" class="u-url">Importing Part module in ifcOpenShell-python</a></h1>
                 <div class="metadata">
                     <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                         <a href="authors/devang-chauhan/">Devang Chauhan</a>
@@ -327,30 +381,6 @@ This post shows you how you can import the Part module in Python.</p>
 <p>The following recipe creates a simple wall from scratch using a templating technique to quickly populate the entity instances for the IFC project structure. Simple extrusion geometries, an IfcPropertySet and an IfcElementQuantity are added using the procedural entity instance creation functions. The script is written for a research project with Dr. Patrick Janssen in National University of Singapore. The script takes reference from the FreeCAD IFC exporter script and <a href="http://www.buildingsmart-tech.org/implementation/get-started/hello-world/example-1">HelloWall miniExample</a>.</p>
 <p><img alt="HelloWall" src="images/HelloWall.png"></p>
 <p class="more"><a href="posts/creating-a-simple-wall-with-property-set-and-quantity-information/">Read more…</a></p>
-</div>
-                </div>
-            </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/" class="u-url">Using IfcOpenshell and pythonOCC to generate cross sections directly from an IFC file</a></h1>
-                <div class="metadata">
-                    <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                        <a href="authors/emiel-van-strien/">Emiel van Strien</a>
-                    </span></p>
-            <p class="dateline">
-            <a href="posts/using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/" rel="bookmark">
-            <time class="published dt-published" datetime="2015-03-04T05:39:00+02:00" itemprop="datePublished" title="2015-03-04 05:39">2015-03-04 05:39</time></a>
-            </p>
-                        <p class="commentline">
-        
-        <a href="posts/using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/#utterances-thread">Comments</a>
-
-
-                </p>
-</div>
-            </header><div class="p-summary entry-summary">
-                    <div>
-<p>[This article contains several snippets of source code for illustration purposes, the full source code can be downloaded at the bottom]</p>
-<p>Section information can be used for multiple purposes. This example is the first part of a project in which the aim is to be able to directly send information to a large 3D concrete printer. This printer will be able to print concrete buildings on a 1:1 scale on a building site. The goal is to control the printer directly from an IFC model. Since the printer will print one layer at a time, the first step is to derive section information from an IFC file. This is what this tutorial is about. As an example of the information that can be deduced from a section, the area that needs to be printed is calculated.</p>
-<p>This example builds upon some of the concepts in "Using IfcOpenShell and pythonOCC to construct new geometry" and uses the same model of a simple house, called <a href="http://blog.ifcopenshell.org/2012/11/say-hi-to-ifcopenhouse.html">IfcOpenHouse</a>.</p>
-<p class="more"><a href="posts/using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/">Read more…</a></p>
 </div>
                 </div>
             </article>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="../assets/xml/rss.xsl" media="all"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>IfcOpenShell Academy (Posts about Jupyter)</title><link>https://academy.ifcopenshell.org/</link><description></description><atom:link href="https://academy.ifcopenshell.org/categories/jupyter.xml" rel="self" type="application/rss+xml"></atom:link><language>en</language><copyright>Contents © 2021 &lt;a href="mailto:thomas@aecgeeks.com"&gt;Thomas Krijnen&lt;/a&gt; </copyright><lastBuildDate>Sun, 17 Oct 2021 13:10:51 GMT</lastBuildDate><generator>Nikola (getnikola.com)</generator><docs>http://blogs.law.harvard.edu/tech/rss</docs><item><title>Using IfcOpenshell in Binder Notebooks with web-viewer and graph visualization</title><link>https://academy.ifcopenshell.org/posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/</link><dc:creator>Jakob Beetz </dc:creator><description>&lt;div&gt;&lt;p&gt;As an early release (still a little rough around the edges), &lt;a href="https://github.com/jakob-beetz/ifcopenshell-notebooks"&gt;this repo&lt;/a&gt; has been created to allow students to get familiar with ifcopenshell without any knowledge. Its zero-setup running Jupyter-notebooks on binder.&lt;/p&gt;
+&lt;p&gt;to launch now click this: &lt;a href="https://mybinder.org/v2/gh/jakob-beetz/ifcopenshell-binder/main?urlpath=git-pull%3Frepo%3Dhttps%253A%252F%252Fgithub.com%252Fjakob-beetz%252Fifcopenshell-notebooks%26urlpath%3Dlab%252Ftree%252Fifcopenshell-notebooks%252F00_introduction.ipynb%26branch%3Dmain"&gt;&lt;img alt="Binder" src="https://mybinder.org/badge_logo.svg"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Some of the &lt;strong&gt;features&lt;/strong&gt; are:
+&lt;img alt="Interactive viewer" src="https://academy.ifcopenshell.org/images/screenshot-ifc-notebook.png"&gt; &lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;a viewer adapted from OCCJupyterViewer added with &lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;two-directional-selection viewer &amp;lt;-&amp;gt; model&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;section sliders for sections&lt;/li&gt;
+&lt;li&gt;attribute value lister&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;set and get colors&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;graph visualization of the scene graph
+&lt;img alt="Graph viewer" src="https://academy.ifcopenshell.org/images/ifc-graph-plot.png"&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;integrated IFC documentation 
+&lt;img alt="Doc in help" src="https://academy.ifcopenshell.org/images/ifchelp-example-ifcdoor.png"&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;There are many more examples, quizzes and task in the German version that is part of a mandatory 4th term class for 250 architecture students at the &lt;a href="https://dc.rwth-aachen.de/de"&gt;RWTH Aachen&lt;/a&gt; that will be migrated over time. 
+We are very open and happy about suggestions, issues, PRs and feedback!&lt;/p&gt;
+&lt;p&gt;TODOs:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;more explantory text&lt;/li&gt;
+&lt;li&gt;English verion of slides with &lt;a href="https://rise.readthedocs.io/en/stable/index.html"&gt;RISE&lt;/a&gt; to be used in lectures&lt;/li&gt;
+&lt;li&gt;move viewer to SideCar (was not possible in the RWTH-Jupyter-Cluster yet)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I will be applying for some more funding to extend this into a good Open Educational Resource (OER) book from provincial sources in NRW/Germany, very open for collaboration ... &lt;/p&gt;&lt;/div&gt;</description><category>binder</category><category>Jupyter</category><category>university</category><guid>https://academy.ifcopenshell.org/posts/using-ifcopenshell-in-binder-notebook-with-viewer-and-graph/</guid><pubDate>Sun, 17 Oct 2021 11:45:29 GMT</pubDate></item></channel></rss>
