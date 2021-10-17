@@ -14,7 +14,7 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="rss.xml">
 <link rel="canonical" href="https://academy.ifcopenshell.org/">
 <link rel="next" href="index-1.html" type="text/html">
-<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/calculate-differences-of-ifc-files-with-hashing/" type="text/html">
+<!--[if lt IE 9]><script src="assets/js/html5.js"></script><![endif]--><link rel="prefetch" href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" type="text/html">
 </head>
 <body>
 <a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
@@ -74,7 +74,34 @@
     
         
     <div class="postindex">
-            <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/calculate-differences-of-ifc-files-with-hashing/" class="u-url">Calculate Differences of IFC files with Hashing</a></h1>
+            <article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" class="u-url">Importing Part module in ifcOpenShell-python</a></h1>
+                <div class="metadata">
+                    <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
+                        <a href="authors/devang-chauhan/">Devang Chauhan</a>
+                    </span></p>
+            <p class="dateline">
+            <a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/" rel="bookmark">
+            <time class="published dt-published" datetime="2021-10-11T12:20:00+05:30" itemprop="datePublished" title="2021-10-11 12:20">2021-10-11 12:20</time></a>
+            </p>
+                        <p class="commentline">
+        
+        <a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/#utterances-thread">Comments</a>
+
+
+                </p>
+</div>
+            </header><div class="p-summary entry-summary">
+                    <div>
+<h2>Importing Part module from FreeCAD in python</h2>
+<p>I was looking for a way to extract BREP (Boundary representation) from IFC and I stumbled
+upon <a href="https://pythoncvc.net/?p=839">this</a> article. In the article, you'll see that
+<a href="https://www.linkedin.com/in/cyril-waechter-5a5b6180/">Cyril</a> uses the Part
+module of <a href="https://www.freecadweb.org/index.php">FreeCAD</a>.
+This post shows you how you can import the Part module in Python.</p>
+<p class="more"><a href="posts/Importing%20Part%20module%20in%20ifcOpenShell-python/">Read more…</a></p>
+</div>
+                </div>
+            </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/calculate-differences-of-ifc-files-with-hashing/" class="u-url">Calculate Differences of IFC files with Hashing</a></h1>
                 <div class="metadata">
                     <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
                         <a href="authors/johan-luttun/">Johan Luttun</a>
@@ -324,69 +351,6 @@
 <p>Section information can be used for multiple purposes. This example is the first part of a project in which the aim is to be able to directly send information to a large 3D concrete printer. This printer will be able to print concrete buildings on a 1:1 scale on a building site. The goal is to control the printer directly from an IFC model. Since the printer will print one layer at a time, the first step is to derive section information from an IFC file. This is what this tutorial is about. As an example of the information that can be deduced from a section, the area that needs to be printed is calculated.</p>
 <p>This example builds upon some of the concepts in "Using IfcOpenShell and pythonOCC to construct new geometry" and uses the same model of a simple house, called <a href="http://blog.ifcopenshell.org/2012/11/say-hi-to-ifcopenhouse.html">IfcOpenHouse</a>.</p>
 <p class="more"><a href="posts/using-ifcopenshell-and-pythonocc-to-generate-cross-sections-directly-from-an-ifc-file/">Read more…</a></p>
-</div>
-                </div>
-            </article><article class="h-entry post-text" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title"><a href="posts/using-the-parsing-functionality-of-ifcopenshell-interactively/" class="u-url">Using the parsing functionality of IfcOpenShell interactively</a></h1>
-                <div class="metadata">
-                    <p class="byline author vcard"><span class="byline-name fn" itemprop="author">
-                        <a href="authors/thomas-krijnen/">Thomas Krijnen</a>
-                    </span></p>
-            <p class="dateline">
-            <a href="posts/using-the-parsing-functionality-of-ifcopenshell-interactively/" rel="bookmark">
-            <time class="published dt-published" datetime="2015-02-26T12:17:00+02:00" itemprop="datePublished" title="2015-02-26 12:17">2015-02-26 12:17</time></a>
-            </p>
-                        <p class="commentline">
-        
-        <a href="posts/using-the-parsing-functionality-of-ifcopenshell-interactively/#utterances-thread">Comments</a>
-
-
-                </p>
-</div>
-            </header><div class="p-summary entry-summary">
-                    <div>
-<p>In this recipe we are going to look at an interactive way of working with Python and IfcOpenShell that allows to quickly explore the possibilities offered by the tools. When the python interpreter (python.exe) is executed without arguments it will function as a REPL (a Read Evaluate Print Loop). It enables the user to type a single line of code and immediately see the evaluated result. An example of such a session is provided below. It outlines the procedure of starting with an IfcProject and descending down to the unit for angular measures. In this particular file it seems that angles are specified as degrees, a constant factor of 0.0174533 away from radians.</p>
-<pre class="code literal-block"><span></span><code><span class="n">Python</span> <span class="mf">2.7.8</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Jun</span> <span class="mi">30</span> <span class="mi">2014</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">49</span><span class="p">)</span> <span class="p">[</span><span class="n">MSC</span> <span class="n">v</span><span class="mf">.1500</span> <span class="mi">32</span> <span class="n">bit</span> <span class="p">(</span><span class="n">Intel</span><span class="p">)]</span> <span class="n">on</span> <span class="n">win32</span>
-<span class="n">Type</span> <span class="s2">"help"</span><span class="p">,</span> <span class="s2">"copyright"</span><span class="p">,</span> <span class="s2">"credits"</span> <span class="ow">or</span> <span class="s2">"license"</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">ifcopenshell</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">file</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"IfcOpenHouse.ifc"</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">by_type</span><span class="p">(</span><span class="s2">"IfcProject"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span>
-<span class="c1">#18=IfcProject('2f0veX5Vj59AhEg6WqGnhO',#5,'IfcOpenHouse',$,$,$,$,(#11),#17)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">is_a</span><span class="p">()</span>
-<span class="s1">'IfcProject'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">is_a</span><span class="p">(</span><span class="s2">"IfcRoot"</span><span class="p">)</span>
-<span class="kc">True</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">is_a</span><span class="p">(</span><span class="s2">"IfcWall"</span><span class="p">)</span>
-<span class="kc">False</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>
-<span class="mi">18</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">attribute_name</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="s1">'GlobalId'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">attribute_type</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="s1">'STRING'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">GlobalId</span>
-<span class="s1">'2f0veX5Vj59AhEg6WqGnhO'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">Bier</span>
-<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
-  <span class="n">File</span> <span class="s2">""</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> 
-  <span class="n">File</span> <span class="s2">"ifcopenshell</span><span class="se">\\</span><span class="s2">ifcopenshell.py"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">28</span><span class="p">,</span> <span class="ow">in</span> <span class="fm">__getattr__</span>
-    <span class="k">except</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"entity instance of type '</span><span class="si">%s</span><span class="s2">' has no attribute '</span><span class="si">%s</span><span class="s2">'"</span><span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wrapped_data</span><span class="o">.</span><span class="n">is_a</span><span class="p">(),</span> <span class="n">name</span><span class="p">))</span>
-<span class="ne">AttributeError</span><span class="p">:</span> <span class="n">entity</span> <span class="n">instance</span> <span class="n">of</span> <span class="nb">type</span> <span class="s1">'IfcProject'</span> <span class="n">has</span> <span class="n">no</span> <span class="n">attribute</span> <span class="s1">'Bier'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">project</span><span class="o">.</span><span class="n">UnitsInContext</span>
-<span class="c1">#17=IfcUnitAssignment((#13,#16))</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">UnitsInContext</span><span class="o">.</span><span class="n">Units</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">UnitType</span> <span class="o">==</span> <span class="s2">"PLANEANGLEUNIT"</span><span class="p">,</span> <span class="n">units</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span>
-<span class="c1">#16=IfcConversionBasedUnit(#12,.PLANEANGLEUNIT.,'Degrees',#15)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span><span class="o">.</span><span class="n">ConversionFactor</span>
-<span class="c1">#15=IfcMeasureWithUnit(IfcPlaneAngleMeasure(0.0174533),#14)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span><span class="o">.</span><span class="n">ConversionFactor</span><span class="o">.</span><span class="n">ValueComponent</span>
-<span class="n">IfcPlaneAngleMeasure</span><span class="p">(</span><span class="mf">0.0174533</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span><span class="o">.</span><span class="n">ConversionFactor</span><span class="o">.</span><span class="n">ValueComponent</span><span class="o">.</span><span class="n">is_a</span><span class="p">()</span>
-<span class="s1">'IfcPlaneAngleMeasure'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">angle_unit</span><span class="o">.</span><span class="n">ConversionFactor</span><span class="o">.</span><span class="n">ValueComponent</span><span class="o">.</span><span class="n">wrappedValue</span>
-<span class="mf">0.0174533</span>
-</code></pre>
 </div>
                 </div>
             </article>

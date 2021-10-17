@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns# article: http://ogp.me/ns/article# " lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Importing Part module in ifcOpenShell-python | IfcOpenShell Academy</title>
+<link href="../../assets/css/all-nocdn.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/ipython.min.css" rel="stylesheet" type="text/css">
+<link href="../../assets/css/nikola_ipython.css" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+<meta name="theme-color" content="#5670d4">
+<meta name="generator" content="Nikola (getnikola.com)">
+<link rel="alternate" type="application/rss+xml" title="RSS" hreflang="en" href="../../rss.xml">
+<link rel="canonical" href="https://academy.ifcopenshell.org/posts/Importing%20Part%20module%20in%20ifcOpenShell-python/">
+<!--[if lt IE 9]><script src="../../assets/js/html5.js"></script><![endif]--><meta name="author" content="Devang Chauhan">
+<link rel="prev" href="../calculate-differences-of-ifc-files-with-hashing/" title="Calculate Differences of IFC files with Hashing" type="text/html">
+<meta property="og:site_name" content="IfcOpenShell Academy">
+<meta property="og:title" content="Importing Part module in ifcOpenShell-python">
+<meta property="og:url" content="https://academy.ifcopenshell.org/posts/Importing%20Part%20module%20in%20ifcOpenShell-python/">
+<meta property="og:description" content="Importing Part module from FreeCAD in python
+I was looking for a way to extract BREP (Boundary representation) from IFC and I stumbled
+upon this article. In the article, you'll see that
+Cyril uses the">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2021-10-11T12:20:00+05:30">
+</head>
+<body>
+<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
+
+<!-- Header and menu bar -->
+<div class="container">
+      <header class="blog-header py-3"><div class="row nbb-header align-items-center">
+          <div class="col-md-3 col-xs-2 col-sm-2" style="width: auto;">
+            <button class="navbar-toggler navbar-light bg-light nbb-navbar-toggler" type="button" data-toggle="collapse" data-target=".bs-nav-collapsible" aria-controls="bs-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse bs-nav-collapsible bootblog4-search-form-holder">
+                
+            </div>
+        </div>
+          <div class="col-md-6 col-xs-10 col-sm-10 bootblog4-brand" style="width: auto;">
+            <a class="navbar-brand blog-header-logo text-dark" href="../../">
+
+            <span id="blog-title">IfcOpenShell Academy</span>
+        </a>
+          </div>
+            <div class="col-md-3 justify-content-end align-items-center bs-nav-collapsible collapse flex-collapse bootblog4-right-nav">
+            <nav class="navbar navbar-light bg-white"><ul class="navbar-nav bootblog4-right-nav">
+<li class="nav-item">
+    <a href="../Importing%20Part%20module%20in%20ifcOpenShell-python/index.md" id="sourcelink" class="nav-link">Source</a>
+    </li>
+
+
+                    
+            </ul></nav>
+</div>
+    </div>
+</header><nav class="navbar navbar-expand-md navbar-light bg-white static-top"><div class="collapse navbar-collapse bs-nav-collapsible" id="bs-navbar">
+            <ul class="navbar-nav nav-fill d-flex w-100">
+<li class="nav-item">
+<a href="../../archive.html" class="nav-link">Archive</a>
+                </li>
+<li class="nav-item">
+<a href="../../categories/" class="nav-link">Tags</a>
+                </li>
+<li class="nav-item">
+<a href="../../rss.xml" class="nav-link">RSS feed</a>
+                </li>
+<li class="nav-item">
+<a href="http://ifcopenshell.org" class="nav-link">IfcOpenShell Home ⮫</a>
+
+                
+            </li>
+</ul>
+</div>
+<!-- /.navbar-collapse -->
+</nav>
+</div>
+
+<div class="container" id="content" role="main">
+    <div class="body-content">
+        <!--Body content-->
+        
+        
+        
+<article class="post-text h-entry hentry postpage" itemscope="itemscope" itemtype="http://schema.org/Article"><header><h1 class="p-name entry-title" itemprop="headline name"><a href="../Importing%20Part%20module%20in%20ifcOpenShell-python/" class="u-url">Importing Part module in ifcOpenShell-python</a></h1>
+
+        <div class="metadata">
+            <p class="byline author vcard p-author h-card"><span class="byline-name fn p-name" itemprop="author">
+                    <a class="u-url" href="../../authors/devang-chauhan/">Devang Chauhan</a>
+            </span></p>
+            <p class="dateline">
+            <a href="../Importing%20Part%20module%20in%20ifcOpenShell-python/" rel="bookmark">
+            <time class="published dt-published" datetime="2021-10-11T12:20:00+05:30" itemprop="datePublished" title="2021-10-11 12:20">2021-10-11 12:20</time></a>
+            </p>
+                <p class="commentline">
+        
+        <a href="../Importing%20Part%20module%20in%20ifcOpenShell-python/#utterances-thread">Comments</a>
+
+
+            
+        </p>
+<p class="sourceline"><a href="../Importing%20Part%20module%20in%20ifcOpenShell-python/index.md" class="sourcelink">Source</a></p>
+
+        </div>
+        
+
+    </header><div class="e-content entry-content" itemprop="articleBody text">
+    <div>
+<h2>Importing Part module from FreeCAD in python</h2>
+<p>I was looking for a way to extract BREP (Boundary representation) from IFC and I stumbled
+upon <a href="https://pythoncvc.net/?p=839">this</a> article. In the article, you'll see that
+<a href="https://www.linkedin.com/in/cyril-waechter-5a5b6180/">Cyril</a> uses the Part
+module of <a href="https://www.freecadweb.org/index.php">FreeCAD</a>.
+This post shows you how you can import the Part module in Python.</p>
+<!-- TEASER_END -->
+
+<h3>Step-1</h3>
+<p>Download FreeCAD from <a href="https://github.com/FreeCAD/FreeCAD/releases">here</a> and
+extract it to a location on your system. You are going to use the extracted directory
+folder so choose such a location on your system where you can keep the extracted folder
+long-term. I have saved the folder in the "D" drive of my machine.</p>
+<h3>Step-2</h3>
+<p>Find the version of Python being used in FreeCAD. In the downloaded folder go to "bin",
+and find python.exe.
+<img alt="Location" src="../../images/import_Part.png">
+Double click on python.exe and observe the python version.
+<img alt="version" src="../../images/import_Part2.png"></p>
+<h3>Step-3</h3>
+<p>Download and install the matching python version on your system.</p>
+<h3>Step-4</h3>
+<p>Once installed, go to the folder named "site-packages" in your python installation and
+create a file named "example.pth". The file name can be anything here.
+<img alt="site-packages" src="../../images/import_Part3.png"></p>
+<h3>Step-5</h3>
+<p>Lastly, in the example.pth file, add paths to the folders "bin" and "lib" in the FreeCAD
+folder you downloaded in Step-1.</p>
+<p>After doing all the steps, you will be able to import the Part module in Python and would
+be able to work with BREPs.</p>
+<h3>Usage</h3>
+<pre class="code literal-block"><span></span><code><span class="kn">import</span> <span class="nn">FreeCAD</span>
+<span class="kn">import</span> <span class="nn">Part</span>
+</code></pre>
+</div>
+    </div>
+    <aside class="postpromonav"><nav><ul class="pager hidden-print">
+<li class="previous">
+                <a href="../calculate-differences-of-ifc-files-with-hashing/" rel="prev" title="Calculate Differences of IFC files with Hashing">Previous post</a>
+            </li>
+        </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
+        
+        
+        <div data-title="Importing Part module in ifcOpenShell-python" id="utterances-thread"></div>
+        <script src="https://utteranc.es/client.js" repo="IfcOpenShell/academy" issue-term="title" label="Comments" theme="github-light" crossorigin="anonymous"></script></section></article><!--End of body content--><footer id="footer">
+            Contents © 2021         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            
+            
+        </footer>
+</div>
+</div>
+
+
+        <script src="../../assets/js/all-nocdn.js"></script><script>
+    baguetteBox.run('div#content', {
+        ignoreClass: 'islink',
+        captions: function(element){var i=element.getElementsByTagName('img')[0];return i===undefined?'':i.alt;}});
+    </script>
+</body>
+</html>
