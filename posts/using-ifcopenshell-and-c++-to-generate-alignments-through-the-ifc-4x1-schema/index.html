@@ -95,7 +95,7 @@
             <time class="published dt-published" datetime="2017-05-21T10:03:00+02:00" itemprop="datePublished" title="2017-05-21 10:03">2017-05-21 10:03</time></a>
             </p>
                 <p class="commentline">
-        
+    
         <a href="../using-ifcopenshell-and-c%2B%2B-to-generate-alignments-through-the-ifc-4x1-schema/#utterances-thread">Comments</a>
 
 
@@ -107,8 +107,7 @@
         
 
     </header><div class="e-content entry-content" itemprop="articleBody text">
-    <div>
-<p><em>IfcOpenShell</em> has an <a href="https://github.com/IfcOpenShell/IfcOpenShell/tree/master/src/ifcexpressparser#readme">EXPRESS parser and code generator</a> that generates code for the various IFC schemas. As part of the source code repository comes pre-generated code for the two widely used versions IFC2X3 and IFC4. But arbitrary schemas can be fed into the parser to provide support for other schemas at compile time. This post highlights the process of generating code for other schemas and talks about the recent developments within the IFC Alignment project._</p>
+    <p><em>IfcOpenShell</em> has an <a href="https://github.com/IfcOpenShell/IfcOpenShell/tree/master/src/ifcexpressparser#readme">EXPRESS parser and code generator</a> that generates code for the various IFC schemas. As part of the source code repository comes pre-generated code for the two widely used versions IFC2X3 and IFC4. But arbitrary schemas can be fed into the parser to provide support for other schemas at compile time. This post highlights the process of generating code for other schemas and talks about the recent developments within the IFC Alignment project._</p>
 <p><img alt="Illustration of an alignment as exchanged in IFC" src="../../images/alignment.png"></p>
 <!-- TEASER_END -->
 
@@ -118,8 +117,8 @@
 <img alt="Overview slide presented in the buildingSmart Barcelona ’17 summit" src="../../images/slide.png"></p>
 <h3>Code generation procedure</h3>
 <p>The <a href="https://github.com/IfcOpenShell/IfcOpenShell/tree/master/src/ifcexpressparser">code generator</a> can be ran manually on the IFC4x1 EXPRESS schema or alternatively, provide the schema to the CMake build process with the COMPILE_SCHEMA option. This folder contains Python code to generate C++ type information based on an Express schema. In particular it has only been tested using recent version of the IFC schema and will most likely fail on any other Express schema. It generates code that can decorate instances returned by the parser with type information. The generated schema classes are expected to include an IfcRoot class in order to be able to build a mapping of instances according to their GlobalId attributes. The code can be invoked in the way given below:</p>
-<pre class="code literal-block"><span></span><code>python bootstrap.py express.bnf &gt; express_parser.py &amp;&amp; python express_parser.py IFC4x1.exp
-</code></pre>
+<div class="code"><pre class="code literal-block">python bootstrap.py express.bnf &gt; express_parser.py &amp;&amp; python express_parser.py IFC4x1.exp
+</pre></div>
 
 <p>The first step generates code to read generic schemas in the EXPRESS modelling language by parsing its syntax in the "Backus–Naur form" (express.bnf). The code generated is the used to parse the IFC schema and results in 5 files being generated.</p>
 <h3>New entities in the IfcAlignment schema</h3>
@@ -142,7 +141,6 @@
 </ul>
 <h3>Generated code</h3>
 <p>The IFC4X1 and more recent IFC4X3 schemas are, after this tutorial was written, now bundled with recent versions of IfcOpenShell.</p>
-</div>
     </div>
     <aside class="postpromonav"><nav><ul itemprop="keywords" class="tags">
 <li><a class="tag p-category" href="../../categories/c%2B%2B/" rel="tag">C++</a></li>
@@ -158,10 +156,10 @@
             </li>
         </ul></nav></aside><section class="comments hidden-print"><h2>Comments</h2>
         
-        
+    
         <div data-title="Using IfcOpenShell and C++ to generate Alignments through the IFC 4x1 schema" id="utterances-thread"></div>
         <script src="https://utteranc.es/client.js" repo="IfcOpenShell/academy" issue-term="title" label="Comments" theme="github-light" crossorigin="anonymous"></script></section></article><!--End of body content--><footer id="footer">
-            Contents © 2021         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
+            Contents © 2024         <a href="mailto:thomas@aecgeeks.com">Thomas Krijnen</a> - Powered by         <a href="https://getnikola.com" rel="nofollow">Nikola</a>         
             
             
         </footer>
